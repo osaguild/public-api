@@ -5,6 +5,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as r53 from "aws-cdk-lib/aws-route53";
 import * as r53Target from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as path from "path";
 
 export class TaberoguService extends Construct {
   constructor(scope: Construct, id: string) {
@@ -29,7 +30,7 @@ export class TaberoguService extends Construct {
     const handler = new lambda.Function(
       this, "taberogu-handler", {
       runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset("taberogu"),
+      code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
       handler: "taberogu.main",
       timeout: cdk.Duration.seconds(10),
       functionName: "taberogu",
