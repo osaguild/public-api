@@ -31,7 +31,8 @@ export class TaberoguService extends Construct {
       this, "taberogu-handler", {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
-      handler: "taberogu.main",
+      handler: "taberogu.get",
+      memorySize: 128,
       timeout: cdk.Duration.seconds(10),
       functionName: "taberogu",
       description: "taberogu",
