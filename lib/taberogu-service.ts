@@ -65,9 +65,6 @@ export class TaberoguService extends Construct {
     // add endpoint
     const apiV1 = api.root.addResource("v1");
     const apiV1Taberogu = apiV1.addResource("taberogu");
-    apiV1Taberogu.addMethod("GET", new apigw.LambdaIntegration(
-      handler, {
-      requestTemplates: { "application/json": '{ "statusCode": "200" }' },
-    }));
+    apiV1Taberogu.addMethod("GET", new apigw.LambdaIntegration(handler));
   }
 }

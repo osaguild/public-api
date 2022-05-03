@@ -7,9 +7,11 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "run-s test:compile test:jest",
-    "test:compile": "npx esbuild ./taberogu/*.ts --platform=node --bundle --outdir=./taberogu",
-    "test:jest": "jest"
+    "compile": "npx esbuild ./taberogu/*.ts --platform=node --bundle --outdir=./taberogu",
+    "test": "run-s compile test:run",
+    "test:run": "jest",
+    "deploy": "run-s compile deploy:run",
+    "deploy:run": "cdk deploy"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
