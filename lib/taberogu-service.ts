@@ -11,6 +11,9 @@ export class TaberoguService extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
+    const target = scope.node.tryGetContext('target');
+    const context = scope.node.tryGetContext(target);
+
     // hosted zone
     const hostedZone = r53.HostedZone.fromLookup(
       this, "hosted-zone", {
@@ -20,44 +23,44 @@ export class TaberoguService extends Construct {
     // certificate
     const certificate = new acm.DnsValidatedCertificate(
       this, "certificate", {
-      domainName: "*.dev.osaguild.com",
-      subjectAlternativeNames: ["*.dev.osaguild.com"],
+      domainName: context.CERTIFICATE_DOMAIN,
+      subjectAlternativeNames: [context.CERTIFICATE_DOMAIN],
       hostedZone: hostedZone,
       region: "us-east-1",
     });
 
     // handler
     const handler = new lambda.Function(
-      this, "taberogu-handler", {
+      this, "taberogu-get-shop", {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
       handler: "taberogu.getShop",
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
-      functionName: "taberogu",
-      description: "taberogu",
+      functionName: `public-api-${target}-taberogu-get-shop`,
+      description: "taberogu get shop",
       environment: {
         "HOGE": "hoge",
       },
     });
 
     // api gateway
-    const api = new apigw.RestApi(this, "api", {
+    const api = new apigw.RestApi(this, `public-api-${target}`, {
       defaultCorsPreflightOptions: {
         allowOrigins: apigw.Cors.ALL_ORIGINS,
         allowMethods: apigw.Cors.ALL_METHODS,
       },
       domainName: {
-        domainName: "api.dev.osaguild.com",
+        domainName: context.API_DOMAIN,
         certificate: certificate,
       },
-      restApiName: "api",
-      description: "api",
+      restApiName: `public-api-${target}`,
+      description: "public api",
     });
 
     // a record
     const aRecord = new r53.ARecord(this, "a-record", {
-      recordName: "api.dev.osaguild.com",
+      recordName: context.API_DOMAIN,
       zone: hostedZone,
       target: r53.RecordTarget.fromAlias(new r53Target.ApiGateway(api)),
     });

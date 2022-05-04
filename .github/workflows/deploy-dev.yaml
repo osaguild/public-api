@@ -1,0 +1,30 @@
+name: Development Deploy
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Check out
+        uses: actions/checkout@v2
+      - name: Install package
+        run: |
+          sudo apt update
+          sudo apt install tree
+      - name: Deploy
+        run: |
+          npm install
+          npm run deploy-dev
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}

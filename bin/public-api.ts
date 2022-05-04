@@ -4,7 +4,9 @@ import * as cdk from 'aws-cdk-lib';
 import { PublicApiStack } from '../lib/public-api-stack';
 
 const app = new cdk.App();
-new PublicApiStack(app, 'public-api-dev', {
+const appName = "public-api-" + app.node.tryGetContext('target');
+
+new PublicApiStack(app, appName, {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

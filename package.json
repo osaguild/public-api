@@ -10,8 +10,10 @@
     "compile": "npx esbuild ./taberogu/*.ts --platform=node --bundle --outdir=./taberogu",
     "test": "run-s compile test:run",
     "test:run": "jest",
-    "deploy": "run-s compile deploy:run",
-    "deploy:run": "cdk deploy"
+    "deploy-dev": "run-s compile deploy:dev",
+    "deploy-prd": "run-s compile deploy:prd",
+    "deploy:dev": "cdk deploy --c target=dev --require-approval never",
+    "deploy:prd": "cdk deploy --c target=prd --require-approval never"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",

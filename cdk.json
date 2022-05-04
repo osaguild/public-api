@@ -29,6 +29,17 @@
     "@aws-cdk/core:target-partitions": [
       "aws",
       "aws-cn"
-    ]
+    ],
+    "target": "dev",
+    "prd": {
+      "DOMAIN": "osaguild.com",
+      "API_DOMAIN": "api.osaguild.com",
+      "CERTIFICATE_DOMAIN": "*.osaguild.com"
+    },
+    "dev": {
+      "DOMAIN": "dev.osaguild.com",
+      "API_DOMAIN": "api.dev.osaguild.com",
+      "CERTIFICATE_DOMAIN": "*.dev.osaguild.com"
+    }
   }
 }
