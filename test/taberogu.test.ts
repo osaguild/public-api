@@ -1,5 +1,7 @@
 import Taberogu = require('../taberogu/taberogu');
 
+jest.setTimeout(20000);
+
 test("success", async () => {
   // request data
   const event = {
@@ -108,4 +110,28 @@ test("request param error[prefecture and city]", async () => {
   expect(res.statusCode).toBe(404);
   expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
   expect(res.body).toBe("request params error. prefecture is not found");
+});
+
+test("ranking", async () => {
+  // request data
+  const event = {
+    queryStringParameters: {
+      prefecture: "saitama",
+      city: "saitama",
+    },
+  }
+  // call api
+  const res = await Taberogu.getRanking(event);
+  const body = JSON.parse(res.body);
+  // check response
+  expect(res.statusCode).toBe(200);
+  expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
+  expect(body[0].id).toBe("11035130");
+  expect(body[0].url).toBe("https://tabelog.com/saitama/A1101/A110101/11035130/");
+  expect(body[0].star).toBe("3.84");
+  expect(body[0].ranking).toBe("1");
+  expect(body[99].id).toBe("11037461");
+  expect(body[99].url).toBe("https://tabelog.com/saitama/A1101/A110101/11037461/");
+  expect(body[99].star).toBe("3.55");
+  expect(body[99].ranking).toBe("100");
 });
