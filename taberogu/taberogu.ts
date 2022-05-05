@@ -158,7 +158,6 @@ export async function getRanking(event: any): Promise<any> {
       ranking: shopRanking[i],
     });
   };
-  console.log(body);
 
   // return http response
   if (shopIds.length === 0) {

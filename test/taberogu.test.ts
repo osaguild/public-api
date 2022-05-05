@@ -1,6 +1,6 @@
 import Taberogu = require('../taberogu/taberogu');
 
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 test("success", async () => {
   // request data
