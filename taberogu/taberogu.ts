@@ -2,14 +2,51 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 export async function getShop(event: any): Promise<any> {
-  // create request
-  const area = "さいたま市";
-  const name = event.queryStringParameters.name;
-  const uri = `https://tabelog.com/saitama/A1101/rstLst/?vs=1&sa=${area}&sw=${name}`;
-  const encodedUri = encodeURI(uri);
 
-  // get dom
-  const res = await axios.get(encodedUri);
+  // check request params
+  let prefectureCode;
+  let cityCode;
+  
+  const searchableArea = {
+    prefectures: [{
+      name: "saitama",
+      code: "saitama",
+      cities: [{
+        name: "saitama",
+        code: "A1101",
+      }],
+    }],
+  };
+
+  for (const prefecture of searchableArea.prefectures) {
+    if (prefecture.name === event.queryStringParameters.prefecture) {
+      prefectureCode = prefecture.code;
+      for (const city of prefecture.cities) {
+        if (city.name === event.queryStringParameters.city) {
+          cityCode = city.code;
+        };
+      };
+    };
+  };
+
+  if (!prefectureCode) {
+    return {
+      statusCode: 404,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: "request params error. prefecture is not found",
+    };
+  } else if (!cityCode) {
+    return {
+      statusCode: 404,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: "request params error. city is not found",
+    };
+  }
+
+  // api call
+  const uri = encodeURI(`https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/?vs=1&sw=${event.queryStringParameters.shopName}`);
+  const res = await axios.get(uri);
+
   // search dom
   const $ = cheerio.load(res.data);
   const shopIds: string[] = [];
