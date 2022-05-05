@@ -10,7 +10,7 @@ export async function getShop(event: any): Promise<any> {
 
   // get dom
   const res = await axios.get(encodedUri);
-  
+
   // search dom
   const $ = cheerio.load(res.data);
   const shopIds: string[] = [];
@@ -25,16 +25,24 @@ export async function getShop(event: any): Promise<any> {
   });
 
   // create response body
-  const body = { 
+  const body = {
     id: shopIds[0],
     url: shopUrls[0],
     star: shopStars[0],
   };
 
   // return http response
-  return {
-    statusCode: 200,
-    headers: { "Access-Control-Allow-Origin": "*" },
-    body: JSON.stringify(body),
-  };
+  if (shopIds.length === 0) {
+    return {
+      statusCode: 404,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: "not found",
+    };
+  } else {
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify(body),
+    };
+  }
 }
