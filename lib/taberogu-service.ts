@@ -30,7 +30,7 @@ export class TaberoguService extends Construct {
     });
 
     // handler
-    const handler = new lambda.Function(
+    const taberoguGetShop = new lambda.Function(
       this, "taberogu-get-shop", {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
@@ -39,6 +39,20 @@ export class TaberoguService extends Construct {
       timeout: cdk.Duration.seconds(10),
       functionName: `public-api-${target}-taberogu-get-shop`,
       description: "taberogu get shop",
+      environment: {
+        "HOGE": "hoge",
+      },
+    });
+
+    const taberoguGetRanking = new lambda.Function(
+      this, "taberogu-get-ranking", {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
+      handler: "taberogu.getRanking",
+      memorySize: 128,
+      timeout: cdk.Duration.seconds(10),
+      functionName: `public-api-${target}-taberogu-get-ranking`,
+      description: "taberogu get ranking",
       environment: {
         "HOGE": "hoge",
       },
@@ -68,6 +82,8 @@ export class TaberoguService extends Construct {
     // add endpoint
     const apiV1 = api.root.addResource("v1");
     const apiV1Taberogu = apiV1.addResource("taberogu");
-    apiV1Taberogu.addMethod("GET", new apigw.LambdaIntegration(handler));
+    apiV1Taberogu.addMethod("GET", new apigw.LambdaIntegration(taberoguGetShop));
+    const apiV1TaberoguRanking = apiV1Taberogu.addResource("ranking");
+    apiV1TaberoguRanking.addMethod("GET", new apigw.LambdaIntegration(taberoguGetRanking));
   }
 }
