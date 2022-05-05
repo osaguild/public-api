@@ -28,6 +28,7 @@ export async function getShop(event: any): Promise<any> {
     id: shopIds[0],
     url: shopUrls[0],
     star: shopStars[0],
+    unique: shopIds.length === 1 ? true : false,
   };
 
   // return http response
