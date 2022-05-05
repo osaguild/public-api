@@ -10,7 +10,6 @@ export async function getShop(event: any): Promise<any> {
 
   // get dom
   const res = await axios.get(encodedUri);
-
   // search dom
   const $ = cheerio.load(res.data);
   const shopIds: string[] = [];
