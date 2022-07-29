@@ -3,6 +3,10 @@
 node_modules
 cdk.context.json
 taberogu/*.js
+bin/*.js
+lib/*.js
+test/*.js
+*.log
 # CDK asset staging directory
 .cdk.staging
 cdk.out

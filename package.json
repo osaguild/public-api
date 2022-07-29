@@ -1,6 +1,7 @@
 {
   "name": "public-api",
   "version": "0.1.0",
+  "license": "MIT",
   "bin": {
     "public-api": "bin/public-api.js"
   },
