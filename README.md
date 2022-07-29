@@ -1,4 +1,4 @@
-# public-qpi
+# public-api
 public api for osaguild
 
 ## api lists
