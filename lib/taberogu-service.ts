@@ -73,7 +73,7 @@ export class TaberoguService extends Construct {
     });
 
     // a record
-    const aRecord = new r53.ARecord(this, "a-record", {
+    new r53.ARecord(this, "a-record", {
       recordName: context.API_DOMAIN,
       zone: hostedZone,
       target: r53.RecordTarget.fromAlias(new r53Target.ApiGateway(api)),
