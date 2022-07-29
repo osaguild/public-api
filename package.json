@@ -15,7 +15,8 @@
     "deploy-dev": "run-s compile deploy:dev",
     "deploy-prd": "run-s compile deploy:prd",
     "deploy:dev": "cdk deploy --c target=dev --require-approval never",
-    "deploy:prd": "cdk deploy --c target=prd --require-approval never"
+    "deploy:prd": "cdk deploy --c target=prd --require-approval never",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
@@ -33,7 +34,8 @@
     "prettier": "^2.7.1",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "husky": "^8.0.0"
   },
   "dependencies": {
     "aws-cdk-lib": "2.22.0",
