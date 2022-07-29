@@ -49,7 +49,7 @@ export class TaberoguService extends Construct {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
       handler: "taberogu.getRanking",
-      memorySize: 128,
+      memorySize: 256,
       timeout: cdk.Duration.seconds(10),
       functionName: `public-api-${target}-taberogu-get-ranking`,
       description: "taberogu get ranking",
