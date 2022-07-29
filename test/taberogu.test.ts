@@ -1,4 +1,4 @@
-import Taberogu = require('../taberogu/taberogu');
+import Taberogu = require("../taberogu/taberogu");
 
 jest.setTimeout(20000);
 
@@ -10,7 +10,7 @@ test("success", async () => {
       city: "saitama",
       shopName: "酒蔵 力",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getShop(event);
   const body = JSON.parse(res.body);
@@ -31,7 +31,7 @@ test("not found", async () => {
       city: "saitama",
       shopName: "レストランラ・ヴォワール",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getShop(event);
   // check response
@@ -48,7 +48,7 @@ test("hit one", async () => {
       city: "saitama",
       shopName: "ひとり味",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getShop(event);
   const body = JSON.parse(res.body);
@@ -69,7 +69,7 @@ test("request param error[prefecture]", async () => {
       city: "saitama",
       shopName: "レストランラ・ヴォワール",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getShop(event);
   // check response
@@ -86,7 +86,7 @@ test("request param error[city]", async () => {
       city: "urawa",
       shopName: "レストランラ・ヴォワール",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getShop(event);
   // check response
@@ -103,7 +103,7 @@ test("request param error[prefecture and city]", async () => {
       city: "urawa",
       shopName: "レストランラ・ヴォワール",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getShop(event);
   // check response
@@ -119,7 +119,7 @@ test("ranking", async () => {
       prefecture: "saitama",
       city: "saitama",
     },
-  }
+  };
   // call api
   const res = await Taberogu.getRanking(event);
   const body = JSON.parse(res.body);

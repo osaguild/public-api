@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { PublicApiStack } from '../lib/public-api-stack';
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import { PublicApiStack } from "../lib/public-api-stack";
 
 const app = new cdk.App();
-const appName = "public-api-" + app.node.tryGetContext('target');
+const appName = "public-api-" + app.node.tryGetContext("target");
 
 new PublicApiStack(app, appName, {
   /* If you don't specify 'env', this stack will be environment-agnostic.
@@ -13,7 +13,10 @@ new PublicApiStack(app, appName, {
 
   /* Uncomment the next line to specialize this stack for the AWS Account
    * and Region that are implied by the current CLI configuration. */
-  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  },
 
   /* Uncomment the next line if you know exactly what Account and Region you
    * want to deploy the stack to. */
