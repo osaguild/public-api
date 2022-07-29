@@ -49,7 +49,7 @@ export class TaberoguService extends Construct {
         code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
         handler: "taberogu.getRanking",
         memorySize: 128,
-        timeout: cdk.Duration.seconds(10),
+        timeout: cdk.Duration.seconds(20),
         functionName: `public-api-${target}-taberogu-get-ranking`,
         description: "taberogu get ranking",
         environment: {
