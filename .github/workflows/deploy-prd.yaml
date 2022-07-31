@@ -19,7 +19,7 @@ jobs:
       - name: Install package
         run: |
           sudo apt update
-          yarn install
+          yarn
       - name: Test
         run: yarn test
       - name: Deploy
