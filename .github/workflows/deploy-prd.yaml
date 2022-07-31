@@ -19,11 +19,11 @@ jobs:
       - name: Install package
         run: |
           sudo apt update
-          sudo apt install tree
+          yarn install
+      - name: Test
+        run: yarn test
       - name: Deploy
-        run: |
-          npm install
-          npm run deploy-prd
+        run: yarn deploy-prd
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
