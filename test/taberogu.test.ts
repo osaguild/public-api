@@ -4,7 +4,7 @@ import {
   GetRankingRequest,
   Shop,
   Ranking,
-} from "../taberogu/type";
+} from "../taberogu/types";
 
 jest.setTimeout(60000);
 
