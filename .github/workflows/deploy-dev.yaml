@@ -21,7 +21,7 @@ jobs:
           sudo apt update
           yarn
       - name: Test
-        run: yarn test
+        run: yarn test taberogu
       - name: Deploy
         run: yarn deploy-dev
         env:
