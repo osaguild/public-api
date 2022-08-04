@@ -11,7 +11,7 @@ export interface CommonProps {
     getRanking: cdk.aws_lambda.Function;
   };
   kaldi: {
-    hookScraping: cdk.aws_lambda.Function;
+    hook: cdk.aws_lambda.Function;
   };
 }
 
@@ -74,10 +74,9 @@ export class Common extends Construct {
     // kaldi
     const apiV1Kaldi = apiV1.addResource("kaldi");
     const apiV1KaldiHook = apiV1Kaldi.addResource("hook");
-    const apiV1KaldiHookScraping = apiV1KaldiHook.addResource("scraping");
-    apiV1KaldiHookScraping.addMethod(
+    apiV1KaldiHook.addMethod(
       "POST",
-      new apiGateway.LambdaIntegration(props.kaldi.hookScraping)
+      new apiGateway.LambdaIntegration(props.kaldi.hook)
     );
   }
 }

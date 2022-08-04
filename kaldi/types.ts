@@ -15,11 +15,11 @@ export interface Message {
   text: string;
 }
 
-export interface HookScrapingRequest {
+export interface HookRequest {
   hoge: string;
 }
 
-export interface HookScrapingResponse {
+export interface HookResponse {
   statusCode: 200 | 404 | 500;
   headers: { "Access-Control-Allow-Origin": "*" };
   body: string;

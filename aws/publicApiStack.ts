@@ -17,7 +17,7 @@ export class PublicApiStack extends Stack {
         getRanking: taberogu.getRanking,
       },
       kaldi: {
-        hookScraping: kaldi.hookScraping,
+        hook: kaldi.hook,
       },
     };
     new Common(this, "common", commonProps);
