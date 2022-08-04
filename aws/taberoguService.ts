@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 
-export class Taberogu extends Construct {
+export class TaberoguService extends Construct {
   // lambda functions
   getShop: cdk.aws_lambda.Function;
   getRanking: cdk.aws_lambda.Function;
