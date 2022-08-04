@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { Sale, MessagingApiRequest, HookScrapingEventResponse } from "./types";
+import { Sale, MessagingApiRequest, HookScrapingResponse } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import "dotenv/config";
 
@@ -48,7 +48,7 @@ const sendLineMessage = async (message: string) => {
   return res.status;
 };
 
-export const hookScrapingEvent = async (request: any) => {
+export const hookScraping = async (request: any) => {
   checkRequest(request);
   const sales = getSales();
   const message = createMessage(sales);
@@ -57,7 +57,7 @@ export const hookScrapingEvent = async (request: any) => {
     statusCode: 200,
     headers: { "Access-Control-Allow-Origin": "*" },
     body: `http status of messaging api is ${status}`,
-  } as HookScrapingEventResponse;
+  } as HookScrapingResponse;
 };
 
 const salesForTest: Sale[] = [
