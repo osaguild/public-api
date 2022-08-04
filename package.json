@@ -15,8 +15,6 @@
     "deploy-prd": "run-s compile deploy:prd",
     "deploy:dev": "cdk deploy --c target=dev --require-approval never",
     "deploy:prd": "cdk deploy --c target=prd --require-approval never",
-    "destroy-dev": "cdk destroy --c target=dev --require-approval never",
-    "destroy-prd": "cdk destroy --c target=prd --require-approval never",
     "prepare": "husky install"
   },
   "devDependencies": {
