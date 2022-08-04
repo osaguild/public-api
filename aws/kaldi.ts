@@ -4,7 +4,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 import "dotenv/config";
 
-export class kaldiService extends Construct {
+export class Kaldi extends Construct {
   // lambda function
   hookScraping: cdk.aws_lambda.Function;
 

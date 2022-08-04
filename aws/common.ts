@@ -70,10 +70,6 @@ export class Common extends Construct {
       "GET",
       new apiGateway.LambdaIntegration(props.taberogu.getRanking)
     );
-    apiV1Taberogu.addMethod(
-      "GET",
-      new apiGateway.LambdaIntegration(props.taberogu.getShop)
-    );
 
     // kaldi
     const apiV1Kaldi = apiV1.addResource("kaldi");
