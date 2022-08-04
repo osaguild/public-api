@@ -1,6 +1,6 @@
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
-import * as apigw from "aws-cdk-lib/aws-apigateway";
+import * as apiGateway from "aws-cdk-lib/aws-apigateway";
 import * as r53 from "aws-cdk-lib/aws-route53";
 import * as r53Target from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
@@ -35,18 +35,11 @@ export class Common extends Construct {
       region: "us-east-1",
     });
 
-    // a record
-    new r53.ARecord(this, "a-record", {
-      recordName: context.API_DOMAIN,
-      zone: hostedZone,
-      target: r53.RecordTarget.fromAlias(new r53Target.ApiGateway(api)),
-    });
-
     // api gateway
-    const api = new apigw.RestApi(this, `public-api-${target}`, {
+    const api = new apiGateway.RestApi(this, `public-api-${target}`, {
       defaultCorsPreflightOptions: {
-        allowOrigins: apigw.Cors.ALL_ORIGINS,
-        allowMethods: apigw.Cors.ALL_METHODS,
+        allowOrigins: apiGateway.Cors.ALL_ORIGINS,
+        allowMethods: apiGateway.Cors.ALL_METHODS,
       },
       domainName: {
         domainName: context.API_DOMAIN,
@@ -56,6 +49,13 @@ export class Common extends Construct {
       description: "public api",
     });
 
+    // a record
+    new r53.ARecord(this, "a-record", {
+      recordName: context.API_DOMAIN,
+      zone: hostedZone,
+      target: r53.RecordTarget.fromAlias(new r53Target.ApiGateway(api)),
+    });
+
     // add endpoint
     const apiV1 = api.root.addResource("v1");
 
@@ -63,16 +63,16 @@ export class Common extends Construct {
     const apiV1Taberogu = apiV1.addResource("taberogu");
     apiV1Taberogu.addMethod(
       "GET",
-      new apigw.LambdaIntegration(props.taberogu.getShop)
+      new apiGateway.LambdaIntegration(props.taberogu.getShop)
     );
     const apiV1TaberoguRanking = apiV1Taberogu.addResource("ranking");
     apiV1TaberoguRanking.addMethod(
       "GET",
-      new apigw.LambdaIntegration(props.taberogu.getRanking)
+      new apiGateway.LambdaIntegration(props.taberogu.getRanking)
     );
     apiV1Taberogu.addMethod(
       "GET",
-      new apigw.LambdaIntegration(props.taberogu.getShop)
+      new apiGateway.LambdaIntegration(props.taberogu.getShop)
     );
 
     // kaldi
@@ -81,7 +81,7 @@ export class Common extends Construct {
     const apiV1KaldiHookScraping = apiV1KaldiHook.addResource("scraping");
     apiV1KaldiHookScraping.addMethod(
       "POST",
-      new apigw.LambdaIntegration(props.kaldi.hookScraping)
+      new apiGateway.LambdaIntegration(props.kaldi.hookScraping)
     );
   }
 }
