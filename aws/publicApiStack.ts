@@ -8,8 +8,8 @@ export class PublicApiStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const taberogu = new Taberogu(this, "taberogu-service");
-    const kaldi = new Kaldi(this, "kaldi-service");
+    const taberogu = new Taberogu(this, "taberogu");
+    const kaldi = new Kaldi(this, "kaldi");
 
     const commonProps: CommonProps = {
       taberogu: {
@@ -20,6 +20,6 @@ export class PublicApiStack extends Stack {
         hookScraping: kaldi.hookScraping,
       },
     };
-    new Common(this, "common-service", commonProps);
+    new Common(this, "common", commonProps);
   }
 }
