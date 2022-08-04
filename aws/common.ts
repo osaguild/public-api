@@ -1,14 +1,22 @@
-import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import * as cdk from "aws-cdk-lib";
 import * as apigw from "aws-cdk-lib/aws-apigateway";
-import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as r53 from "aws-cdk-lib/aws-route53";
 import * as r53Target from "aws-cdk-lib/aws-route53-targets";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
-import * as path from "path";
 
-export class TaberoguService extends Construct {
-  constructor(scope: Construct, id: string) {
+export interface CommonProps {
+  taberogu: {
+    getShop: cdk.aws_lambda.Function;
+    getRanking: cdk.aws_lambda.Function;
+  };
+  kaldi: {
+    hookScraping: cdk.aws_lambda.Function;
+  };
+}
+
+export class Common extends Construct {
+  constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id);
 
     const target = scope.node.tryGetContext("target");
@@ -27,36 +35,12 @@ export class TaberoguService extends Construct {
       region: "us-east-1",
     });
 
-    // handler
-    const taberoguGetShop = new lambda.Function(this, "taberogu-get-shop", {
-      runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
-      handler: "taberogu.getShop",
-      memorySize: 128,
-      timeout: cdk.Duration.seconds(10),
-      functionName: `public-api-${target}-taberogu-get-shop`,
-      description: "taberogu get shop",
-      environment: {
-        HOGE: "hoge",
-      },
+    // a record
+    new r53.ARecord(this, "a-record", {
+      recordName: context.API_DOMAIN,
+      zone: hostedZone,
+      target: r53.RecordTarget.fromAlias(new r53Target.ApiGateway(api)),
     });
-
-    const taberoguGetRanking = new lambda.Function(
-      this,
-      "taberogu-get-ranking",
-      {
-        runtime: lambda.Runtime.NODEJS_14_X,
-        code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
-        handler: "taberogu.getRanking",
-        memorySize: 256,
-        timeout: cdk.Duration.seconds(60),
-        functionName: `public-api-${target}-taberogu-get-ranking`,
-        description: "taberogu get ranking",
-        environment: {
-          HOGE: "hoge",
-        },
-      }
-    );
 
     // api gateway
     const api = new apigw.RestApi(this, `public-api-${target}`, {
@@ -72,24 +56,32 @@ export class TaberoguService extends Construct {
       description: "public api",
     });
 
-    // a record
-    new r53.ARecord(this, "a-record", {
-      recordName: context.API_DOMAIN,
-      zone: hostedZone,
-      target: r53.RecordTarget.fromAlias(new r53Target.ApiGateway(api)),
-    });
-
     // add endpoint
     const apiV1 = api.root.addResource("v1");
+
+    // taberogu
     const apiV1Taberogu = apiV1.addResource("taberogu");
     apiV1Taberogu.addMethod(
       "GET",
-      new apigw.LambdaIntegration(taberoguGetShop)
+      new apigw.LambdaIntegration(props.taberogu.getShop)
     );
     const apiV1TaberoguRanking = apiV1Taberogu.addResource("ranking");
     apiV1TaberoguRanking.addMethod(
       "GET",
-      new apigw.LambdaIntegration(taberoguGetRanking)
+      new apigw.LambdaIntegration(props.taberogu.getRanking)
+    );
+    apiV1Taberogu.addMethod(
+      "GET",
+      new apigw.LambdaIntegration(props.taberogu.getShop)
+    );
+
+    // kaldi
+    const apiV1Kaldi = apiV1.addResource("kaldi");
+    const apiV1KaldiHook = apiV1Kaldi.addResource("hook");
+    const apiV1KaldiHookScraping = apiV1KaldiHook.addResource("scraping");
+    apiV1KaldiHookScraping.addMethod(
+      "POST",
+      new apigw.LambdaIntegration(props.kaldi.hookScraping)
     );
   }
 }
