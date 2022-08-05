@@ -26,7 +26,6 @@ export const hook = async (request: HookRequest) => {
    * head_branch: develop or main
    */
   const checkRequest = (request: HookRequest) => {
-    console.log(request);
     if (request.body.action !== "completed")
       throw new Error("request params error. action is incorrect");
 
