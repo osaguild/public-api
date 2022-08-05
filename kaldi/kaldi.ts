@@ -1,5 +1,11 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { Sale, MessagingApiRequest, HookRequest, Response } from "./types";
+import {
+  Sale,
+  MessagingApiRequest,
+  HookRequest,
+  Response,
+  HookRequestBody,
+} from "./types";
 import { v4 as uuidv4 } from "uuid";
 import "dotenv/config";
 
@@ -25,29 +31,29 @@ export const hook = async (request: HookRequest) => {
    * if parameter doesn't match, throw Error
    * head_branch: develop or main
    */
-  const checkRequest = (request: HookRequest) => {
-    if (request.body.action !== "completed")
+  const checkRequest = (body: HookRequestBody) => {
+    if (body.action !== "completed")
       throw new Error("request params error. action is incorrect");
 
-    if (request.body.workflow_run.name !== "scraping")
+    if (body.workflow_run.name !== "scraping")
       throw new Error("request params error. name is incorrect");
 
     if (
-      request.body.workflow_run.head_branch !==
+      body.workflow_run.head_branch !==
       (process.env.HOOK_TARGET_BRANCH as string)
     )
       throw new Error("request params error. head_branch is incorrect");
 
-    if (request.body.workflow_run.path !== ".github/workflows/scraping.yaml")
+    if (body.workflow_run.path !== ".github/workflows/scraping.yaml")
       throw new Error("request params error. path is incorrect");
 
-    if (request.body.workflow_run.event !== "workflow_dispatch")
+    if (body.workflow_run.event !== "workflow_dispatch")
       throw new Error("request params error. event is incorrect");
 
-    if (request.body.workflow_run.status !== "completed")
+    if (body.workflow_run.status !== "completed")
       throw new Error("request params error. status is incorrect");
 
-    if (request.body.workflow_run.conclusion !== "success")
+    if (body.workflow_run.conclusion !== "success")
       throw new Error("request params error. conclusion is incorrect");
   };
 
@@ -91,7 +97,7 @@ export const hook = async (request: HookRequest) => {
   };
 
   try {
-    checkRequest(request);
+    checkRequest(JSON.parse(request.body));
     const sales = getSales();
     const message = createMessage(sales);
     const status = await sendLineMessage(message);

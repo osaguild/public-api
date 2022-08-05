@@ -16,16 +16,18 @@ export interface Message {
 }
 
 export interface HookRequest {
-  body: {
-    action: string;
-    workflow_run: {
-      name: string;
-      head_branch: string;
-      path: string;
-      event: string;
-      status: string;
-      conclusion: string;
-    };
+  body: string;
+}
+
+export interface HookRequestBody {
+  action: string;
+  workflow_run: {
+    name: string;
+    head_branch: string;
+    path: string;
+    event: string;
+    status: string;
+    conclusion: string;
   };
 }
 
