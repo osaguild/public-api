@@ -1,65 +1,112 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { Sale, MessagingApiRequest, HookResponse } from "./types";
+import { Sale, MessagingApiRequest, HookRequest, Response } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import "dotenv/config";
 
-const checkRequest = (request: any) => {
-  console.log("!!!! request message start !!!!");
-  console.log(request);
-  console.log("!!!! request message end   !!!!");
-};
-
-const getSales = () => {
-  return salesForTest;
-};
-
-const createMessage = (sales: Sale[]) => {
-  return sales
-    .map((e) => {
-      return `${e.shopName} ${e.salePeriod}`;
-    })
-    .join("\n");
-};
-
-const sendLineMessage = async (message: string) => {
-  const req: MessagingApiRequest = {
-    messages: [
-      {
-        type: "text",
-        text: message,
-      },
-    ],
-  };
-
-  const config: AxiosRequestConfig = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
-      "X-Line-Retry-Key": uuidv4(),
-    },
-  };
-
-  const res = await axios.post(
-    "https://api.line.me/v2/bot/message/broadcast",
-    req,
-    config
-  );
-
-  return res.status;
-};
-
-export const hook = async (request: any) => {
-  checkRequest(request);
-  const sales = getSales();
-  const message = createMessage(sales);
-  const status = await sendLineMessage(message);
+const notFoundError = (message: string): Response => {
   return {
-    statusCode: 200,
+    statusCode: 404,
     headers: { "Access-Control-Allow-Origin": "*" },
-    body: `http status of messaging api is ${status}`,
-  } as HookResponse;
+    body: message,
+  };
 };
 
+const unknownError = (): Response => {
+  return {
+    statusCode: 500,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: "unknown error occurs",
+  };
+};
+
+export const hook = async (request: HookRequest) => {
+  /**
+   * all parameters are constant except head_branch
+   * if parameter doesn't match, throw Error
+   * head_branch: develop or main
+   */
+  const checkRequest = (request: HookRequest) => {
+    if (request.body.action !== "completed")
+      throw new Error("request params error. action is incorrect");
+
+    if (request.body.workflow_run.name !== "scraping")
+      throw new Error("request params error. name is incorrect");
+
+    if (
+      request.body.workflow_run.head_branch !==
+      (process.env.HOOK_TARGET_BRANCH as string)
+    )
+      throw new Error("request params error. head_branch is incorrect");
+
+    if (request.body.workflow_run.path !== ".github/workflows/scraping.yaml")
+      throw new Error("request params error. path is incorrect");
+
+    if (request.body.workflow_run.event !== "workflow_dispatch")
+      throw new Error("request params error. event is incorrect");
+
+    if (request.body.workflow_run.status !== "completed")
+      throw new Error("request params error. status is incorrect");
+
+    if (request.body.workflow_run.conclusion !== "success")
+      throw new Error("request params error. conclusion is incorrect");
+  };
+
+  const getSales = () => {
+    return salesForTest;
+  };
+
+  const createMessage = (sales: Sale[]) => {
+    return sales
+      .map((e) => {
+        return `${e.shopName} ${e.salePeriod}`;
+      })
+      .join("\n");
+  };
+
+  const sendLineMessage = async (message: string) => {
+    const req: MessagingApiRequest = {
+      messages: [
+        {
+          type: "text",
+          text: message,
+        },
+      ],
+    };
+
+    const config: AxiosRequestConfig = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+        "X-Line-Retry-Key": uuidv4(),
+      },
+    };
+
+    const res = await axios.post(
+      "https://api.line.me/v2/bot/message/broadcast",
+      req,
+      config
+    );
+
+    return res.status;
+  };
+
+  try {
+    checkRequest(request);
+    const sales = getSales();
+    const message = createMessage(sales);
+    const status = await sendLineMessage(message);
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: `http status of messaging api is ${status}`,
+    } as Response;
+  } catch (e) {
+    if (e instanceof Error) return notFoundError(e.message);
+    else return unknownError();
+  }
+};
+
+// for development
 const salesForTest: Sale[] = [
   {
     activeSale: "開催中",

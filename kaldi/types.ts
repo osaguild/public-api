@@ -16,10 +16,20 @@ export interface Message {
 }
 
 export interface HookRequest {
-  hoge: string;
+  body: {
+    action: string;
+    workflow_run: {
+      name: string;
+      head_branch: string;
+      path: string;
+      event: string;
+      status: string;
+      conclusion: string;
+    };
+  };
 }
 
-export interface HookResponse {
+export interface Response {
   statusCode: 200 | 404 | 500;
   headers: { "Access-Control-Allow-Origin": "*" };
   body: string;
