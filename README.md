@@ -4,8 +4,9 @@ public api for osaguild
 
 ## api lists
 
-| api          | description                          |
-| :----------- | :----------------------------------- |
+
+| api                   | description                                                   |
+| :------------------- | :------------------------------------------------------------------- |
 | taberogu api | api to get taberogu info by scraping |
 
 ## base url
@@ -13,7 +14,7 @@ public api for osaguild
 | env | url                          |
 | :-- | :--------------------------- |
 | dev | https://api.dev.osaguild.com |
-| prd | https://api.osaguild.com     |
+| prd | https://api.osaguild.com         |
 
 ## api reference
 
