@@ -44,19 +44,26 @@ export const hook = async (request: HookRequest) => {
     )
       throw new Error("request params error. workflow is not completed");
 
-    // check target workflow
-    if (
-      body.workflow_run.name !== "scraping" ||
-      body.workflow_run.path !== ".github/workflows/scraping.yaml"
-    )
-      throw new Error("request params error. not a target workflow");
-
     // check target branch. head_branch: develop or main
     if (
       body.workflow_run.head_branch !==
       (process.env.HOOK_TARGET_BRANCH as string)
     )
       throw new Error("request params error. not a target branch");
+
+    // check target workflow
+    if (
+      process.env.HOOK_TARGET_BRANCH === "develop" &&
+      (body.workflow_run.name !== "scraping dev" ||
+        body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
+    )
+      throw new Error("request params error. not a target workflow");
+    else if (
+      process.env.HOOK_TARGET_BRANCH === "main" &&
+      (body.workflow_run.name !== "scraping prd" ||
+        body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
+    )
+      throw new Error("request params error. not a target workflow");
   };
 
   /**
@@ -64,7 +71,7 @@ export const hook = async (request: HookRequest) => {
    */
   const getSales = async () => {
     const resContents = await axios.get(
-      "https://api.github.com/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=develop"
+      `https://api.github.com/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=${process.env.HOOK_TARGET_BRANCH}`
     );
     const contents: Content[] = resContents.data;
     // bottom of array is newest scraping data.
