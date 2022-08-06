@@ -10,16 +10,17 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import "dotenv/config";
 import { Buffer } from "buffer";
+import { BadRequestError } from "./error";
 
-const notFoundError = (message: string): Response => {
+const badRequestErrorResponse = (message: string): Response => {
   return {
-    statusCode: 404,
+    statusCode: 400,
     headers: { "Access-Control-Allow-Origin": "*" },
     body: message,
   };
 };
 
-const unknownError = (): Response => {
+const unknownErrorResponse = (): Response => {
   return {
     statusCode: 500,
     headers: { "Access-Control-Allow-Origin": "*" },
@@ -42,14 +43,14 @@ export const hook = async (request: HookRequest) => {
       body.workflow_run.status !== "completed" ||
       body.workflow_run.conclusion !== "success"
     )
-      throw new Error("request params error. workflow is not completed");
+      throw new BadRequestError("workflow isn't completed");
 
     // check target branch. head_branch: develop or main
     if (
       body.workflow_run.head_branch !==
       (process.env.HOOK_TARGET_BRANCH as string)
     )
-      throw new Error("request params error. not a target branch");
+      throw new BadRequestError("target branch is incorrect");
 
     // check target workflow
     if (
@@ -57,13 +58,13 @@ export const hook = async (request: HookRequest) => {
       (body.workflow_run.name !== "scraping dev" ||
         body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
     )
-      throw new Error("request params error. not a target workflow");
-    else if (
+      throw new BadRequestError("workflow is incorrect");
+    if (
       process.env.HOOK_TARGET_BRANCH === "main" &&
       (body.workflow_run.name !== "scraping prd" ||
         body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
     )
-      throw new Error("request params error. not a target workflow");
+      throw new BadRequestError("workflow is incorrect");
   };
 
   /**
@@ -146,7 +147,6 @@ export const hook = async (request: HookRequest) => {
       req,
       config
     );
-    if (res.status !== 200) throw new Error("call messaging api is failed");
 
     return res.status;
   };
@@ -157,13 +157,15 @@ export const hook = async (request: HookRequest) => {
     const selectedSales = selectSales(sales, prefecture);
     const message = createMessage(date, prefecture, selectedSales);
     await sendLineMessage(message);
+
     return {
       statusCode: 200,
       headers: { "Access-Control-Allow-Origin": "*" },
       body: "success to send message",
     } as Response;
   } catch (e) {
-    if (e instanceof Error) return notFoundError(e.message);
-    else return unknownError();
+    return e instanceof BadRequestError
+      ? badRequestErrorResponse(e.message)
+      : unknownErrorResponse();
   }
 };

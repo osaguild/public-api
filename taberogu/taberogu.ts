@@ -8,6 +8,7 @@ import {
   Shop,
   Ranking,
 } from "./types";
+import { BadRequestError, NotFoundError } from "./error";
 
 const searchableAreas: Prefecture[] = [
   {
@@ -22,7 +23,15 @@ const searchableAreas: Prefecture[] = [
   },
 ];
 
-const notFoundError = (message: string): Response => {
+const badRequestErrorResponse = (message: string): Response => {
+  return {
+    statusCode: 400,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: message,
+  };
+};
+
+const notFoundErrorResponse = (message: string): Response => {
   return {
     statusCode: 404,
     headers: { "Access-Control-Allow-Origin": "*" },
@@ -30,7 +39,7 @@ const notFoundError = (message: string): Response => {
   };
 };
 
-const unknownError = (): Response => {
+const unknownErrorResponse = (): Response => {
   return {
     statusCode: 500,
     headers: { "Access-Control-Allow-Origin": "*" },
@@ -49,10 +58,8 @@ const getPrefectureAndCityCode = (prefectureName: string, cityName: string) => {
       }
     }
   }
-  if (!prefectureCode)
-    throw new Error("request params error. prefecture is not found");
-  else if (!cityCode)
-    throw new Error("request params error. city is not found");
+  if (!prefectureCode) throw new BadRequestError("prefecture isn't included");
+  if (!cityCode) throw new BadRequestError("city isn't included");
 
   return { prefectureCode, cityCode };
 };
@@ -71,6 +78,7 @@ export const getShop = async (request: GetShopRequest) => {
     const shopUrls: string[] = [];
     const shopStars: string[] = [];
     const res = await axios.get(uri);
+
     // search dom
     const $ = cheerio.load(res.data);
     $(".js-rst-cassette-wrap").each((i, e) => {
@@ -80,8 +88,10 @@ export const getShop = async (request: GetShopRequest) => {
     $(".list-rst__rating-val").each((i, e) => {
       shopStars.push($(e).text());
     });
+
     if (shopIds.length === 0 || shopUrls.length === 0 || shopStars.length === 0)
-      throw new Error("not found");
+      throw new NotFoundError("can't find shop");
+
     return {
       id: shopIds[0],
       url: shopUrls[0],
@@ -111,8 +121,10 @@ export const getShop = async (request: GetShopRequest) => {
       body: JSON.stringify(shop),
     } as Response;
   } catch (e) {
-    if (e instanceof Error) return notFoundError(e.message);
-    else return unknownError();
+    if (e instanceof BadRequestError) return badRequestErrorResponse(e.message);
+    else if (e instanceof NotFoundError)
+      return notFoundErrorResponse(e.message);
+    else return unknownErrorResponse();
   }
 };
 
@@ -122,6 +134,7 @@ export const getRanking = async (request: GetRankingRequest) => {
     const shopUrls: string[] = [];
     const shopStars: string[] = [];
     const shopRanking: string[] = [];
+
     // get ranking every 20
     for (let page = 1; page <= 5; page++) {
       // api call
@@ -141,6 +154,9 @@ export const getRanking = async (request: GetRankingRequest) => {
         shopStars.push($(e).text());
       });
     }
+
+    if (shopIds.length === 0) throw new NotFoundError("can't find ranking");
+
     return shopIds.map((e, i) => {
       return {
         id: shopIds[i],
@@ -168,7 +184,9 @@ export const getRanking = async (request: GetRankingRequest) => {
       body: JSON.stringify(ranking),
     } as Response;
   } catch (e) {
-    if (e instanceof Error) return notFoundError(e.message);
-    else return unknownError();
+    if (e instanceof BadRequestError) return badRequestErrorResponse(e.message);
+    else if (e instanceof NotFoundError)
+      return notFoundErrorResponse(e.message);
+    else return unknownErrorResponse();
   }
 };

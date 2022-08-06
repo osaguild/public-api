@@ -31,7 +31,7 @@ export interface HookRequestBody {
 }
 
 export interface Response {
-  statusCode: 200 | 404 | 500;
+  statusCode: 200 | 400 | 500;
   headers: { "Access-Control-Allow-Origin": "*" };
   body: string;
 }

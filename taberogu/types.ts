@@ -21,7 +21,7 @@ export interface GetRankingRequest {
   };
 }
 export interface Response {
-  statusCode: 200 | 404 | 500;
+  statusCode: 200 | 400 | 404 | 500;
   headers: { "Access-Control-Allow-Origin": "*" };
   body: string;
 }
