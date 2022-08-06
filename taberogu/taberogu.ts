@@ -7,7 +7,7 @@ import {
   Response,
   Shop,
   Ranking,
-} from "./type";
+} from "./types";
 
 const searchableAreas: Prefecture[] = [
   {

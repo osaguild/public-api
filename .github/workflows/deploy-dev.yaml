@@ -21,10 +21,13 @@ jobs:
           sudo apt update
           yarn
       - name: Test
-        run: yarn test
+        run: yarn test taberogu
       - name: Deploy
         run: yarn deploy-dev
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          HOOK_TARGET_BRANCH: ${{ secrets.HOOK_TARGET_BRANCH }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          PREFECTURE: ${{ secrets.PREFECTURE }}
