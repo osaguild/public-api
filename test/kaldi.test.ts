@@ -8,9 +8,9 @@ describe("kaldi", () => {
   const body: HookRequestBody = {
     action: "completed",
     workflow_run: {
-      name: "scraping",
+      name: "scraping dev",
       head_branch: "develop",
-      path: ".github/workflows/scraping.yaml",
+      path: ".github/workflows/scraping-dev.yaml",
       status: "completed",
       conclusion: "success",
     },
