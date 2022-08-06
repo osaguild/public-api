@@ -46,14 +46,8 @@ export const hook = async (request: HookRequest) => {
 
     // check target workflow
     if (
-      !(
-        body.workflow_run.name === "scraping test" &&
-        body.workflow_run.path === ".github/workflows/scraping-test.yaml"
-      ) &&
-      !(
-        body.workflow_run.name === "scheduled scraping" &&
-        body.workflow_run.path === ".github/workflows/scheduled-scraping.yaml"
-      )
+      body.workflow_run.name !== "scraping" ||
+      body.workflow_run.path !== ".github/workflows/scraping.yaml"
     )
       throw new Error("request params error. not a target workflow");
 
