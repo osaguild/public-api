@@ -21,7 +21,7 @@ describe("kaldi", () => {
     const res = await hook(req);
     expect(res.statusCode).toBe(200);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("http status of messaging api is 200");
+    expect(res.body).toBe("success to send message");
   });
   it("[failed]request param error[action]", async () => {
     const _body = clone(body);

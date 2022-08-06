@@ -36,3 +36,8 @@ export interface Response {
   headers: { "Access-Control-Allow-Origin": "*" };
   body: string;
 }
+
+export interface Content {
+  name: string;
+  url: string;
+}
