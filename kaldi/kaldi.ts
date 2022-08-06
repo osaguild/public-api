@@ -64,7 +64,7 @@ export const hook = async (request: HookRequest) => {
    */
   const getSales = async () => {
     const resContents = await axios.get(
-      "https://api.github.com/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=develop"
+      `https://api.github.com/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=${process.env.HOOK_TARGET_BRANCH}`
     );
     const contents: Content[] = resContents.data;
     // bottom of array is newest scraping data.
