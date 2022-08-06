@@ -25,6 +25,7 @@ export class Kaldi extends Construct {
         LINE_CHANNEL_ACCESS_TOKEN: process.env
           .LINE_CHANNEL_ACCESS_TOKEN as string,
         HOOK_TARGET_BRANCH: process.env.HOOK_TARGET_BRANCH as string,
+        PREFECTURE: process.env.PREFECTURE as string,
       },
     });
   }
