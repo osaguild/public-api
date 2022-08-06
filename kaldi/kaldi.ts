@@ -36,30 +36,33 @@ export const hook = async (request: HookRequest) => {
    * if parameter doesn't match, throw Error
    */
   const checkRequest = (body: HookRequestBody) => {
-    if (body.action !== "completed")
-      throw new Error("request params error. action is incorrect");
+    // check completed status
+    if (
+      body.action !== "completed" ||
+      body.workflow_run.status !== "completed" ||
+      body.workflow_run.conclusion !== "success"
+    )
+      throw new Error("request params error. workflow is not completed");
 
-    if (body.workflow_run.name !== "scraping")
-      throw new Error("request params error. name is incorrect");
+    // check target workflow
+    if (
+      !(
+        body.workflow_run.name === "scraping test" &&
+        body.workflow_run.path === ".github/workflows/scraping-test.yaml"
+      ) &&
+      !(
+        body.workflow_run.name === "scheduled scraping" &&
+        body.workflow_run.path === ".github/workflows/scheduled-scraping.yaml"
+      )
+    )
+      throw new Error("request params error. not a target workflow");
 
-    // head_branch: develop or main
+    // check target branch. head_branch: develop or main
     if (
       body.workflow_run.head_branch !==
       (process.env.HOOK_TARGET_BRANCH as string)
     )
-      throw new Error("request params error. head_branch is incorrect");
-
-    if (body.workflow_run.path !== ".github/workflows/scraping.yaml")
-      throw new Error("request params error. path is incorrect");
-
-    if (body.workflow_run.event !== "workflow_dispatch")
-      throw new Error("request params error. event is incorrect");
-
-    if (body.workflow_run.status !== "completed")
-      throw new Error("request params error. status is incorrect");
-
-    if (body.workflow_run.conclusion !== "success")
-      throw new Error("request params error. conclusion is incorrect");
+      throw new Error("request params error. not a target branch");
   };
 
   /**

@@ -25,7 +25,6 @@ export interface HookRequestBody {
     name: string;
     head_branch: string;
     path: string;
-    event: string;
     status: string;
     conclusion: string;
   };
