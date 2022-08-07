@@ -1,10 +1,10 @@
-import { getShop, getRanking } from "../taberogu/taberogu";
+import { getShop, getRanking } from "../src/taberogu";
 import {
   GetShopRequest,
   GetRankingRequest,
   Shop,
   Ranking,
-} from "../taberogu/types";
+} from "../src/taberogu/types";
 
 jest.setTimeout(60000);
 
