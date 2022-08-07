@@ -4,16 +4,10 @@ import {
   Prefecture,
   GetShopRequest,
   GetRankingRequest,
+  Response,
   Shop,
   Ranking,
 } from "./types";
-import {
-  badRequestErrorResponse,
-  notFoundErrorResponse,
-  unknownErrorResponse,
-  successResponse,
-} from "../common/response";
-import { BadRequestError, NotFoundError } from "../common/error";
 
 const searchableAreas: Prefecture[] = [
   {
@@ -28,6 +22,22 @@ const searchableAreas: Prefecture[] = [
   },
 ];
 
+const notFoundError = (message: string): Response => {
+  return {
+    statusCode: 404,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: message,
+  };
+};
+
+const unknownError = (): Response => {
+  return {
+    statusCode: 500,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: "unknown error occurs",
+  };
+};
+
 const getPrefectureAndCityCode = (prefectureName: string, cityName: string) => {
   let prefectureCode: string | undefined = undefined;
   let cityCode: string | undefined = undefined;
@@ -39,9 +49,10 @@ const getPrefectureAndCityCode = (prefectureName: string, cityName: string) => {
       }
     }
   }
-  // if specified parameter isn't included, throw error
-  if (!prefectureCode) throw new BadRequestError("prefecture isn't included");
-  if (!cityCode) throw new BadRequestError("city isn't included");
+  if (!prefectureCode)
+    throw new Error("request params error. prefecture is not found");
+  else if (!cityCode)
+    throw new Error("request params error. city is not found");
 
   return { prefectureCode, cityCode };
 };
@@ -52,7 +63,7 @@ export const getShop = async (request: GetShopRequest) => {
     cityCode: string,
     shopName: string
   ) => {
-    // get html contents from kaldi
+    // api call
     const uri = encodeURI(
       `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/?vs=1&sw=${shopName}`
     );
@@ -60,8 +71,7 @@ export const getShop = async (request: GetShopRequest) => {
     const shopUrls: string[] = [];
     const shopStars: string[] = [];
     const res = await axios.get(uri);
-
-    // search and get target dom value
+    // search dom
     const $ = cheerio.load(res.data);
     $(".js-rst-cassette-wrap").each((i, e) => {
       shopIds.push($(e).attr("data-rst-id") as string);
@@ -70,11 +80,8 @@ export const getShop = async (request: GetShopRequest) => {
     $(".list-rst__rating-val").each((i, e) => {
       shopStars.push($(e).text());
     });
-
-    // if target dom doesn't exist, throw error
     if (shopIds.length === 0 || shopUrls.length === 0 || shopStars.length === 0)
-      throw new NotFoundError("can't find shop");
-
+      throw new Error("not found");
     return {
       id: shopIds[0],
       url: shopUrls[0],
@@ -84,23 +91,28 @@ export const getShop = async (request: GetShopRequest) => {
   };
 
   try {
+    // check request params
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
       request.queryStringParameters.prefecture,
       request.queryStringParameters.city
     );
+
+    // scraping
     const shop = await scraping(
       prefectureCode,
       cityCode,
       request.queryStringParameters.shopName
     );
 
-    return successResponse(JSON.stringify(shop));
+    // return response
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify(shop),
+    } as Response;
   } catch (e) {
-    return e instanceof BadRequestError
-      ? badRequestErrorResponse(e.message)
-      : e instanceof NotFoundError
-      ? notFoundErrorResponse(e.message)
-      : unknownErrorResponse();
+    if (e instanceof Error) return notFoundError(e.message);
+    else return unknownError();
   }
 };
 
@@ -110,7 +122,6 @@ export const getRanking = async (request: GetRankingRequest) => {
     const shopUrls: string[] = [];
     const shopStars: string[] = [];
     const shopRanking: string[] = [];
-
     // get ranking every 20
     for (let page = 1; page <= 5; page++) {
       // api call
@@ -130,10 +141,6 @@ export const getRanking = async (request: GetRankingRequest) => {
         shopStars.push($(e).text());
       });
     }
-
-    // if target dom doesn't exist, throw error
-    if (shopIds.length === 0) throw new NotFoundError("can't find ranking");
-
     return shopIds.map((e, i) => {
       return {
         id: shopIds[i],
@@ -145,18 +152,23 @@ export const getRanking = async (request: GetRankingRequest) => {
   };
 
   try {
+    // check request params
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
       request.queryStringParameters.prefecture,
       request.queryStringParameters.city
     );
+
+    // scraping
     const ranking = await scraping(prefectureCode, cityCode);
 
-    return successResponse(JSON.stringify(ranking));
+    // return response
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify(ranking),
+    } as Response;
   } catch (e) {
-    return e instanceof BadRequestError
-      ? badRequestErrorResponse(e.message)
-      : e instanceof NotFoundError
-      ? notFoundErrorResponse(e.message)
-      : unknownErrorResponse();
+    if (e instanceof Error) return notFoundError(e.message);
+    else return unknownError();
   }
 };

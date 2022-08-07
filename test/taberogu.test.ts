@@ -1,10 +1,10 @@
-import { getShop, getRanking } from "../src/taberogu";
+import { getShop, getRanking } from "../taberogu/taberogu";
 import {
   GetShopRequest,
   GetRankingRequest,
   Shop,
   Ranking,
-} from "../src/taberogu/types";
+} from "../taberogu/types";
 
 jest.setTimeout(60000);
 
@@ -69,7 +69,7 @@ describe("test for getShop()", () => {
     // check response
     expect(res.statusCode).toBe(404);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("can't find shop");
+    expect(res.body).toBe("not found");
   });
 
   it("[failed]request param error[prefecture]", async () => {
@@ -84,9 +84,9 @@ describe("test for getShop()", () => {
     // call api
     const res = await getShop(req);
     // check response
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(404);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("prefecture isn't included");
+    expect(res.body).toBe("request params error. prefecture is not found");
   });
 
   it("[failed]request param error[city]", async () => {
@@ -101,9 +101,9 @@ describe("test for getShop()", () => {
     // call api
     const res = await getShop(req);
     // check response
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(404);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("city isn't included");
+    expect(res.body).toBe("request params error. city is not found");
   });
 });
 
@@ -139,9 +139,9 @@ describe("test for getRanking()", () => {
     // call api
     const res = await getRanking(req);
     // check response
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(404);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("prefecture isn't included");
+    expect(res.body).toBe("request params error. prefecture is not found");
   });
 
   it("[failed]request param error[city]", async () => {
@@ -155,8 +155,8 @@ describe("test for getRanking()", () => {
     // call api
     const res = await getRanking(req);
     // check response
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(404);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("city isn't included");
+    expect(res.body).toBe("request params error. city is not found");
   });
 });

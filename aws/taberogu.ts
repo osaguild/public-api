@@ -15,8 +15,8 @@ export class Taberogu extends Construct {
 
     this.getShop = new lambda.Function(this, "taberogu-get-shop", {
       runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
-      handler: "./taberogu/index.getShop",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
+      handler: "taberogu.getShop",
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
       functionName: `public-api-${target}-taberogu-get-shop`,
@@ -28,8 +28,8 @@ export class Taberogu extends Construct {
 
     this.getRanking = new lambda.Function(this, "taberogu-get-ranking", {
       runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
-      handler: "./taberogu/index.getRanking",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../taberogu/")),
+      handler: "taberogu.getRanking",
       memorySize: 256,
       timeout: cdk.Duration.seconds(60),
       functionName: `public-api-${target}-taberogu-get-ranking`,

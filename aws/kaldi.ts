@@ -15,8 +15,8 @@ export class Kaldi extends Construct {
 
     this.hook = new lambda.Function(this, "kaldi-hook", {
       runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
-      handler: "./kaldi/index.hook",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../kaldi/")),
+      handler: "kaldi.hook",
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
       functionName: `public-api-${target}-kaldi-hook`,
