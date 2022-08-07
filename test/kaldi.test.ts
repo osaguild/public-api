@@ -10,7 +10,6 @@ describe("kaldi", () => {
     action: "completed",
     workflow_run: {
       name: "scraping dev",
-      head_branch: "develop",
       path: ".github/workflows/scraping-dev.yaml",
       status: "completed",
       conclusion: "success",
@@ -68,14 +67,5 @@ describe("kaldi", () => {
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(res.body).toBe("workflow is incorrect");
-  });
-  it("[failed]request param error[head_branch]", async () => {
-    const _body = clone(body);
-    _body.workflow_run.head_branch = "main";
-    const req: PostRequest = { body: JSON.stringify(_body) };
-    const res = await hook(req);
-    expect(res.statusCode).toBe(400);
-    expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("target branch is incorrect");
   });
 });

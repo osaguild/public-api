@@ -24,13 +24,6 @@ export const hook = async (request: PostRequest) => {
     )
       throw new BadRequestError("workflow isn't completed");
 
-    // check target branch. head_branch: develop or main
-    if (
-      body.workflow_run.head_branch !==
-      (process.env.HOOK_TARGET_BRANCH as string)
-    )
-      throw new BadRequestError("target branch is incorrect");
-
     // check target workflow for dev
     if (
       process.env.HOOK_TARGET_BRANCH === "develop" &&

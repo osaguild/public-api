@@ -15,7 +15,6 @@ export interface HookRequestBody {
   action: string;
   workflow_run: {
     name: string;
-    head_branch: string;
     path: string;
     status: string;
     conclusion: string;
