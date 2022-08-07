@@ -1,40 +1,20 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
+import { Sale, HookRequestBody, Content } from "./types";
+import { sendLineMessage } from "../messagingApi";
 import {
-  Sale,
-  MessagingApiRequest,
-  HookRequest,
-  Response,
-  HookRequestBody,
-  Content,
-} from "./types";
-import { v4 as uuidv4 } from "uuid";
+  successResponse,
+  badRequestErrorResponse,
+  unknownErrorResponse,
+} from "../common/response";
+import { PostRequest } from "../common/types";
 import "dotenv/config";
 import { Buffer } from "buffer";
+import { BadRequestError } from "../common/error";
 
-const notFoundError = (message: string): Response => {
-  return {
-    statusCode: 404,
-    headers: { "Access-Control-Allow-Origin": "*" },
-    body: message,
-  };
-};
-
-const unknownError = (): Response => {
-  return {
-    statusCode: 500,
-    headers: { "Access-Control-Allow-Origin": "*" },
-    body: "unknown error occurs",
-  };
-};
-
-export const hook = async (request: HookRequest) => {
-  // selected area
+export const hook = async (request: PostRequest) => {
+  // e.g: 東京都
   const prefecture = process.env.PREFECTURE as string;
 
-  /**
-   * all parameters are constant except head_branch.
-   * if parameter doesn't match, throw Error
-   */
   const checkRequest = (body: HookRequestBody) => {
     // check completed status
     if (
@@ -42,38 +22,32 @@ export const hook = async (request: HookRequest) => {
       body.workflow_run.status !== "completed" ||
       body.workflow_run.conclusion !== "success"
     )
-      throw new Error("request params error. workflow is not completed");
+      throw new BadRequestError("workflow isn't completed");
 
-    // check target branch. head_branch: develop or main
-    if (
-      body.workflow_run.head_branch !==
-      (process.env.HOOK_TARGET_BRANCH as string)
-    )
-      throw new Error("request params error. not a target branch");
-
-    // check target workflow
+    // check target workflow for dev
     if (
       process.env.HOOK_TARGET_BRANCH === "develop" &&
       (body.workflow_run.name !== "scraping dev" ||
         body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
     )
-      throw new Error("request params error. not a target workflow");
-    else if (
+      throw new BadRequestError("workflow is incorrect");
+
+    // check target workflow for prd
+    if (
       process.env.HOOK_TARGET_BRANCH === "main" &&
       (body.workflow_run.name !== "scraping prd" ||
         body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
     )
-      throw new Error("request params error. not a target workflow");
+      throw new BadRequestError("workflow is incorrect");
   };
 
-  /**
-   * use github rest api to get file contents
-   */
   const getSales = async () => {
+    // get file lists from scheduled-scraper repository
     const resContents = await axios.get(
       `https://api.github.com/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=${process.env.HOOK_TARGET_BRANCH}`
     );
     const contents: Content[] = resContents.data;
+
     // bottom of array is newest scraping data.
     const targetContent = contents[contents.length - 1];
     const sDate = targetContent.name.slice(0, 8);
@@ -82,17 +56,19 @@ export const hook = async (request: HookRequest) => {
       Number(sDate.slice(4, 6)) - 1,
       Number(sDate.slice(6, 8))
     );
+
+    // get sales data from scheduled-scraper repository
     const resFile = await axios.get(targetContent.url);
-    // content is encoded base64 string. decode it to utf8 string.
+
+    // decode base64. because github api returns base64 encoded data.
     const encodedSales = Buffer.from(resFile.data.content, "base64").toString();
     const sales: Sale[] = JSON.parse(encodedSales);
+
     return { date, sales };
   };
 
-  /**
-   * select sale information on the specified prefecture.
-   */
   const selectSales = (sales: Sale[], prefecture: string) => {
+    // select target prefecture's sales data. unmatched sales data is ignored.
     return sales
       .map((e) => {
         return e.shopAddress.includes(prefecture) ? e : undefined;
@@ -100,13 +76,13 @@ export const hook = async (request: HookRequest) => {
       .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
   };
 
-  /**
-   * if sales of your area is exist, send message with sales information.
-   */
   const createMessage = (date: Date, prefecture: string, sales: Sale[]) => {
+    // e.g: 🎉2022年01月01日 東京都のセール情報🎉
     const title = `🎉${date.getFullYear()}年${
       date.getMonth() + 1
     }月${date.getDate()}日 ${prefecture}のセール情報🎉\n`;
+
+    // e.g: 【新宿店】2022年1月1日（月） 〜 2022年1月7日（日）
     const saleInfo =
       sales.length === 0
         ? "対象地域のセール情報はありません\n"
@@ -115,40 +91,11 @@ export const hook = async (request: HookRequest) => {
               return `【${e.shopName}】\n${e.salePeriod}\n`;
             })
             .join("\n");
+
+    // e.g: ⭐カルディ公式サイト⭐https://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35
     const officialLink = `⭐カルディ公式サイト⭐\nhttps://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35`;
 
     return `${title}\n${saleInfo}\n${officialLink}`;
-  };
-
-  /**
-   * send message to line using messaging api.
-   */
-  const sendLineMessage = async (message: string) => {
-    const req: MessagingApiRequest = {
-      messages: [
-        {
-          type: "text",
-          text: message,
-        },
-      ],
-    };
-
-    const config: AxiosRequestConfig = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
-        "X-Line-Retry-Key": uuidv4(),
-      },
-    };
-
-    const res = await axios.post(
-      "https://api.line.me/v2/bot/message/broadcast",
-      req,
-      config
-    );
-    if (res.status !== 200) throw new Error("call messaging api is failed");
-
-    return res.status;
   };
 
   try {
@@ -157,13 +104,11 @@ export const hook = async (request: HookRequest) => {
     const selectedSales = selectSales(sales, prefecture);
     const message = createMessage(date, prefecture, selectedSales);
     await sendLineMessage(message);
-    return {
-      statusCode: 200,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: "success to send message",
-    } as Response;
+
+    return successResponse("success to send message");
   } catch (e) {
-    if (e instanceof Error) return notFoundError(e.message);
-    else return unknownError();
+    return e instanceof BadRequestError
+      ? badRequestErrorResponse(e.message)
+      : unknownErrorResponse();
   }
 };
