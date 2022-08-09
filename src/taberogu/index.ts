@@ -52,7 +52,7 @@ export const getShop = async (request: GetShopRequest) => {
     cityCode: string,
     shopName: string
   ) => {
-    // get html contents from kaldi
+    // get html contents from taberogu
     const uri = encodeURI(
       `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/?vs=1&sw=${shopName}`
     );
