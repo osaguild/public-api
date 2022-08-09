@@ -24,6 +24,14 @@ export const notFoundErrorResponse = (message: string): Response => {
   };
 };
 
+export const applicationErrorResponse = (message: string): Response => {
+  return {
+    statusCode: 500,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: message,
+  };
+};
+
 export const unknownErrorResponse = (): Response => {
   return {
     statusCode: 500,

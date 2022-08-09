@@ -1,45 +1,13 @@
 import axios from "axios";
-import { Sale, HookRequestBody, Content } from "./types";
-import { sendLineMessage } from "../messagingApi";
-import {
-  successResponse,
-  badRequestErrorResponse,
-  unknownErrorResponse,
-} from "../common/response";
-import { PostRequest } from "../common/types";
 import "dotenv/config";
 import { Buffer } from "buffer";
-import { BadRequestError } from "../common/error";
+import { Sale, Content } from "./types";
+import { ApplicationResult } from "../common/types";
+import { sendLineMessage } from "../messagingApi";
 
-export const hook = async (request: PostRequest) => {
+export const sendKaldiMessage = async () => {
   // e.g: 東京都
   const prefecture = process.env.PREFECTURE as string;
-
-  const checkRequest = (body: HookRequestBody) => {
-    // check completed status
-    if (
-      body.action !== "completed" ||
-      body.workflow_run.status !== "completed" ||
-      body.workflow_run.conclusion !== "success"
-    )
-      throw new BadRequestError("workflow isn't completed");
-
-    // check target workflow for dev
-    if (
-      process.env.HOOK_TARGET_BRANCH === "develop" &&
-      (body.workflow_run.name !== "scraping dev" ||
-        body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
-    )
-      throw new BadRequestError("workflow is incorrect");
-
-    // check target workflow for prd
-    if (
-      process.env.HOOK_TARGET_BRANCH === "main" &&
-      (body.workflow_run.name !== "scraping prd" ||
-        body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
-    )
-      throw new BadRequestError("workflow is incorrect");
-  };
 
   const getSales = async () => {
     // get file lists from scheduled-scraper repository
@@ -99,16 +67,12 @@ export const hook = async (request: PostRequest) => {
   };
 
   try {
-    checkRequest(JSON.parse(request.body));
     const { date, sales } = await getSales();
     const selectedSales = selectSales(sales, prefecture);
     const message = createMessage(date, prefecture, selectedSales);
     await sendLineMessage(message);
-
-    return successResponse("success to send message");
+    return "SUCCESS" as ApplicationResult;
   } catch (e) {
-    return e instanceof BadRequestError
-      ? badRequestErrorResponse(e.message)
-      : unknownErrorResponse();
+    return "FAILED" as ApplicationResult;
   }
 };

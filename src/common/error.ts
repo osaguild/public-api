@@ -13,3 +13,11 @@ export class NotFoundError extends Error {
     this.name = "NotFoundError";
   }
 }
+
+// 500 application error
+export class ApplicationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ApplicationError";
+  }
+}
