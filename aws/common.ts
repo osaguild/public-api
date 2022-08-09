@@ -10,9 +10,7 @@ export interface CommonProps {
     getShop: cdk.aws_lambda.Function;
     getRanking: cdk.aws_lambda.Function;
   };
-  kaldi: {
-    hook: cdk.aws_lambda.Function;
-  };
+  hook: cdk.aws_lambda.Function;
 }
 
 export class Common extends Construct {
@@ -71,12 +69,8 @@ export class Common extends Construct {
       new apiGateway.LambdaIntegration(props.taberogu.getRanking)
     );
 
-    // kaldi
-    const apiV1Kaldi = apiV1.addResource("kaldi");
-    const apiV1KaldiHook = apiV1Kaldi.addResource("hook");
-    apiV1KaldiHook.addMethod(
-      "POST",
-      new apiGateway.LambdaIntegration(props.kaldi.hook)
-    );
+    // hook
+    const apiV1Hook = apiV1.addResource("hook");
+    apiV1Hook.addMethod("POST", new apiGateway.LambdaIntegration(props.hook));
   }
 }
