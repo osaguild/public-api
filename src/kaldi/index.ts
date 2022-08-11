@@ -1,39 +1,13 @@
-import axios from "axios";
 import "dotenv/config";
-import { Buffer } from "buffer";
-import { Sale, Content } from "./types";
+import { Sale } from "./types";
 import { ApplicationResult } from "../common/types";
 import { sendLineMessage } from "../messagingApi";
+import { getLatestFile } from "../github";
+import { getDateFromFileName } from "../utils";
 
 export const sendKaldiMessage = async () => {
   // e.g: 東京都
   const prefecture = process.env.PREFECTURE as string;
-
-  const getSales = async () => {
-    // get file lists from scheduled-scraper repository
-    const resContents = await axios.get(
-      `https://api.github.com/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=${process.env.HOOK_TARGET_BRANCH}`
-    );
-    const contents: Content[] = resContents.data;
-
-    // bottom of array is newest scraping data.
-    const targetContent = contents[contents.length - 1];
-    const sDate = targetContent.name.slice(0, 8);
-    const date = new Date(
-      Number(sDate.slice(0, 4)),
-      Number(sDate.slice(4, 6)) - 1,
-      Number(sDate.slice(6, 8))
-    );
-
-    // get sales data from scheduled-scraper repository
-    const resFile = await axios.get(targetContent.url);
-
-    // decode base64. because github api returns base64 encoded data.
-    const encodedSales = Buffer.from(resFile.data.content, "base64").toString();
-    const sales: Sale[] = JSON.parse(encodedSales);
-
-    return { date, sales };
-  };
 
   const selectSales = (sales: Sale[], prefecture: string) => {
     // select target prefecture's sales data. unmatched sales data is ignored.
@@ -67,12 +41,16 @@ export const sendKaldiMessage = async () => {
   };
 
   try {
-    const { date, sales } = await getSales();
+    const latestFile = await getLatestFile("KALDI");
+    if (!latestFile) throw new Error("can't get latest file");
+    const date = getDateFromFileName(latestFile.name);
+    const sales: Sale[] = JSON.parse(latestFile.data);
     const selectedSales = selectSales(sales, prefecture);
     const message = createMessage(date, prefecture, selectedSales);
-    await sendLineMessage(message);
-    return "SUCCESS" as ApplicationResult;
+    const result = await sendLineMessage("KALDI", message);
+    return result;
   } catch (e) {
+    console.log("kaldi.sendKaldiMessage is failed");
     return "FAILED" as ApplicationResult;
   }
 };
