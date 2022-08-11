@@ -59,7 +59,7 @@ export const sendShamaisonMessage = async () => {
     const result = await sendLineMessage("SHAMAISON", message);
     return result;
   } catch (e) {
-    console.log("kaldi.sendKaldiMessage is failed");
+    console.log("shamaison.sendShamaisonMessage is failed");
     return "FAILED" as ApplicationResult;
   }
 };
