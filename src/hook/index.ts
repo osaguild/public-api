@@ -8,6 +8,7 @@ import {
   unknownErrorResponse,
 } from "../common/response";
 import { sendKaldiMessage } from "../kaldi";
+import { sendShamaisonMessage } from "../shamaison";
 
 const checkRequest = (body: HookRequestBody) => {
   // check completed status
@@ -39,8 +40,16 @@ export const hook = async (request: PostRequest) => {
   try {
     checkRequest(JSON.parse(request.body));
     const kaldiResult = await sendKaldiMessage();
-    if (kaldiResult === "SUCCESS") return successResponse("success");
-    else throw new ApplicationError("kaldi failed");
+    const shamaisonResult = await sendShamaisonMessage();
+    if (kaldiResult === "SUCCESS" && shamaisonResult === "SUCCESS") {
+      return successResponse("success");
+    } else if (kaldiResult === "FAILED" && shamaisonResult === "SUCCESS") {
+      throw new ApplicationError("kaldi is failed");
+    } else if (kaldiResult === "SUCCESS" && shamaisonResult === "FAILED") {
+      throw new ApplicationError("shamaison is failed");
+    } else {
+      throw new ApplicationError("kaldi and shamaison are failed");
+    }
   } catch (e) {
     return e instanceof BadRequestError
       ? badRequestErrorResponse(e.message)
