@@ -43,7 +43,7 @@ export const sendShamaisonMessage = async () => {
             .join("\n");
 
     // e.g: ⭐カルディ公式サイト⭐https://www.shamaison.com/tokyo/route/0000000/station/00000
-    const officialLink = `⭐シャーメゾン公式サイト⭐\n${station.url}`;
+    const officialLink = `⭐シャーメゾン公式サイト⭐\nhttps://www.shamaison.com${station.url}`;
 
     return `${title}\n${buildingInfo}\n${officialLink}`;
   };
