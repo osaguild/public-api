@@ -6,17 +6,3 @@ export interface Sale {
   salePeriod: string;
   saleDetail: string;
 }
-export interface Content {
-  name: string;
-  url: string;
-}
-
-export interface HookRequestBody {
-  action: string;
-  workflow_run: {
-    name: string;
-    path: string;
-    status: string;
-    conclusion: string;
-  };
-}

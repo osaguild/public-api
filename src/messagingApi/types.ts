@@ -6,3 +6,5 @@ export interface Message {
 export interface MessagingApiRequest {
   messages: Message[];
 }
+
+export type AppType = "KALDI" | "SHAMAISON";

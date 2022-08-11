@@ -4,7 +4,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 import "dotenv/config";
 
-export class Kaldi extends Construct {
+export class Hook extends Construct {
   // lambda function
   hook: cdk.aws_lambda.Function;
 
@@ -13,19 +13,22 @@ export class Kaldi extends Construct {
 
     const target = scope.node.tryGetContext("target");
 
-    this.hook = new lambda.Function(this, "kaldi-hook", {
+    this.hook = new lambda.Function(this, "hook", {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
-      handler: "./kaldi/index.hook",
+      handler: "./hook/index.hook",
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
-      functionName: `public-api-${target}-kaldi-hook`,
-      description: "kaldi hook",
+      functionName: `public-api-${target}-hook`,
+      description: "hook",
       environment: {
-        LINE_CHANNEL_ACCESS_TOKEN: process.env
-          .LINE_CHANNEL_ACCESS_TOKEN as string,
+        KALDI_CHANNEL_ACCESS_TOKEN: process.env
+          .KALDI_CHANNEL_ACCESS_TOKEN as string,
+        SHAMAISON_CHANNEL_ACCESS_TOKEN: process.env
+          .SHAMAISON_CHANNEL_ACCESS_TOKEN as string,
         HOOK_TARGET_BRANCH: process.env.HOOK_TARGET_BRANCH as string,
-        PREFECTURE: process.env.PREFECTURE as string,
+        KALDI_PREFECTURE: process.env.KALDI_PREFECTURE as string,
+        SHAMAISON_STATION: process.env.SHAMAISON_STATION as string,
       },
     });
   }

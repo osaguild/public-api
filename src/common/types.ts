@@ -21,3 +21,5 @@ export interface Response {
   headers: { "Access-Control-Allow-Origin": "*" };
   body: string;
 }
+
+export type ApplicationResult = "SUCCESS" | "FAILED";

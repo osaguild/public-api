@@ -52,7 +52,7 @@ export const getShop = async (request: GetShopRequest) => {
     cityCode: string,
     shopName: string
   ) => {
-    // get html contents from kaldi
+    // get html contents from taberogu
     const uri = encodeURI(
       `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/?vs=1&sw=${shopName}`
     );
@@ -106,17 +106,27 @@ export const getShop = async (request: GetShopRequest) => {
 
 export const getRanking = async (request: GetRankingRequest) => {
   const scraping = async (prefectureCode: string, cityCode: string) => {
-    const shopIds: string[] = [];
-    const shopUrls: string[] = [];
-    const shopStars: string[] = [];
-    const shopRanking: string[] = [];
+    // get ranking uris for scraping
+    const uris = () => {
+      const _uris: string[] = [];
+      for (let page = 1; page <= 5; page++) {
+        _uris.push(
+          encodeURI(
+            `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/${page}/?Srt=D&SrtT=rt&sort_mode=1&select_sort_flg=1`
+          )
+        );
+      }
+      return _uris;
+    };
 
-    // get ranking every 20
-    for (let page = 1; page <= 5; page++) {
-      // api call
-      const uri = encodeURI(
-        `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/${page}/?Srt=D&SrtT=rt&sort_mode=1&select_sort_flg=1`
-      );
+    // asynchronous scraping for uris
+    const promises = uris().map(async (uri, index) => {
+      const shopIds: string[] = [];
+      const shopUrls: string[] = [];
+      const shopStars: string[] = [];
+      const shopRanking: string[] = [];
+
+      // get ranking every 20
       const res = await axios.get(uri);
 
       // search dom
@@ -124,24 +134,25 @@ export const getRanking = async (request: GetRankingRequest) => {
       $(".js-rst-cassette-wrap").each((i, e) => {
         shopIds.push($(e).attr("data-rst-id") as string);
         shopUrls.push($(e).attr("data-detail-url") as string);
-        shopRanking.push(((page - 1) * 20 + i + 1).toString());
+        shopRanking.push((index * 20 + i + 1).toString());
       });
       $(".list-rst__rating-val").each((i, e) => {
         shopStars.push($(e).text());
       });
-    }
 
-    // if target dom doesn't exist, throw error
-    if (shopIds.length === 0) throw new NotFoundError("can't find ranking");
+      // if target dom doesn't exist, throw error
+      if (shopIds.length === 0) throw new NotFoundError("can't find ranking");
 
-    return shopIds.map((e, i) => {
-      return {
-        id: shopIds[i],
-        url: shopUrls[i],
-        star: shopStars[i],
-        ranking: shopRanking[i],
-      } as Ranking;
+      return shopIds.map((e, i) => {
+        return {
+          id: shopIds[i],
+          url: shopUrls[i],
+          star: shopStars[i],
+          ranking: shopRanking[i],
+        } as Ranking;
+      });
     });
+    return await Promise.all(promises);
   };
 
   try {
@@ -149,7 +160,7 @@ export const getRanking = async (request: GetRankingRequest) => {
       request.queryStringParameters.prefecture,
       request.queryStringParameters.city
     );
-    const ranking = await scraping(prefectureCode, cityCode);
+    const ranking = (await scraping(prefectureCode, cityCode)).flat();
 
     return successResponse(JSON.stringify(ranking));
   } catch (e) {
