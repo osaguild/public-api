@@ -22,8 +22,10 @@ export class Hook extends Construct {
       functionName: `public-api-${target}-hook`,
       description: "hook",
       environment: {
-        LINE_CHANNEL_ACCESS_TOKEN: process.env
-          .LINE_CHANNEL_ACCESS_TOKEN as string,
+        KALDI_CHANNEL_ACCESS_TOKEN: process.env
+          .KALDI_CHANNEL_ACCESS_TOKEN as string,
+        SHAMAISON_CHANNEL_ACCESS_TOKEN: process.env
+          .SHAMAISON_CHANNEL_ACCESS_TOKEN as string,
         HOOK_TARGET_BRANCH: process.env.HOOK_TARGET_BRANCH as string,
         PREFECTURE: process.env.PREFECTURE as string,
       },
