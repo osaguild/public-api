@@ -7,7 +7,7 @@ import { getDateFromFileName } from "../utils";
 
 export const sendKaldiMessage = async () => {
   // e.g: 東京都
-  const prefecture = process.env.PREFECTURE as string;
+  const prefecture = process.env.KALDI_PREFECTURE as string;
 
   const selectSales = (sales: Sale[], prefecture: string) => {
     // select target prefecture's sales data. unmatched sales data is ignored.
