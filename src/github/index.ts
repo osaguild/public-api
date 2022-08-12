@@ -35,7 +35,7 @@ export const getLatestFile = async (appType: AppType) => {
       data: Buffer.from(resFile.data.content, "base64").toString(),
     } as File;
   } catch (e) {
-    console.log("github.getLatestFile is failed");
+    console.log("github.getLatestFile is failed", e);
     return undefined;
   }
 };

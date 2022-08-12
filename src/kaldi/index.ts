@@ -52,7 +52,7 @@ export const sendKaldiMessage = async () => {
     const result = await sendLineMessage("KALDI", message);
     return result;
   } catch (e) {
-    console.log("kaldi.sendKaldiMessage is failed");
+    console.log("kaldi.sendKaldiMessage is failed", e);
     return "FAILED" as ApplicationResult;
   }
 };

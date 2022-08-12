@@ -45,7 +45,7 @@ export const sendShamaisonMessage = async () => {
     const result = await sendLineMessage("SHAMAISON", message);
     return result;
   } catch (e) {
-    console.log("shamaison.sendShamaisonMessage is failed");
+    console.log("shamaison.sendShamaisonMessage is failed", e);
     return "FAILED" as ApplicationResult;
   }
 };
