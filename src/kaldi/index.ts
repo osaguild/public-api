@@ -1,9 +1,9 @@
 import "dotenv/config";
-import { Sale } from "./types";
+import { File, Sale } from "./types";
 import { ApplicationResult } from "../common/types";
 import { sendLineMessage } from "../messagingApi";
 import { getLatestFile } from "../github";
-import { getDateFromFileName } from "../utils";
+import { getDateFromFileName, formatDateToYYYYMMDD } from "../utils";
 
 export const sendKaldiMessage = async () => {
   // e.g: 東京都
@@ -24,13 +24,15 @@ export const sendKaldiMessage = async () => {
       date.getMonth() + 1
     }月${date.getDate()}日 ${prefecture}のセール情報🎉\n`;
 
-    // e.g: 【新宿店】2022年1月1日（月） 〜 2022年1月7日（日）
+    // e.g: 【新宿店】2022/1/1 〜 2022/1/7
     const saleInfo =
       sales.length === 0
         ? "対象地域のセール情報はありません\n"
         : sales
             .map((e) => {
-              return `【${e.shopName}】\n${e.salePeriod}\n`;
+              return `【${e.shopName}】\n${formatDateToYYYYMMDD(
+                new Date(Date.parse(e.saleFrom))
+              )} 〜 ${formatDateToYYYYMMDD(new Date(Date.parse(e.saleTo)))}\n`;
             })
             .join("\n");
 
@@ -44,8 +46,8 @@ export const sendKaldiMessage = async () => {
     const latestFile = await getLatestFile("KALDI");
     if (!latestFile) throw new Error("can't get latest file");
     const date = getDateFromFileName(latestFile.name);
-    const sales: Sale[] = JSON.parse(latestFile.data);
-    const selectedSales = selectSales(sales, prefecture);
+    const file: File = JSON.parse(latestFile.data);
+    const selectedSales = selectSales(file.data, prefecture);
     const message = createMessage(date, prefecture, selectedSales);
     const result = await sendLineMessage("KALDI", message);
     return result;
