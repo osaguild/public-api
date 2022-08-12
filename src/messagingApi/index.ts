@@ -43,7 +43,7 @@ export const sendLineMessage = async (appType: AppType, message: string) => {
 
     return "SUCCESS" as ApplicationResult;
   } catch (e) {
-    console.log("messageingApi.sendLineMessage is failed");
+    console.log("messageingApi.sendLineMessage is failed", e);
     return "FAILED" as ApplicationResult;
   }
 };
