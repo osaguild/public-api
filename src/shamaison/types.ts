@@ -1,22 +1,29 @@
 export interface Building {
   name: string;
   address: string;
-  access: string;
+  station: string;
+  distance: string;
   yearBuilt: string;
-  numberOfStairs: string;
+  numberOfStairs: number;
   url: string;
   rooms: Room[];
 }
 
 export interface Room {
   roomNo: string;
-  rent: string;
+  rent: number;
   floorPlan: string;
-  area: string;
+  space: number;
   url: string;
 }
 
 export interface Station {
   name: string;
   url: string;
+}
+
+export interface File {
+  createdAt: string;
+  stations: Station[];
+  data: Building[];
 }

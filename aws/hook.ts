@@ -28,7 +28,6 @@ export class Hook extends Construct {
           .SHAMAISON_CHANNEL_ACCESS_TOKEN as string,
         HOOK_TARGET_BRANCH: process.env.HOOK_TARGET_BRANCH as string,
         KALDI_PREFECTURE: process.env.KALDI_PREFECTURE as string,
-        SHAMAISON_STATION: process.env.SHAMAISON_STATION as string,
       },
     });
   }

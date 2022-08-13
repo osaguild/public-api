@@ -1,8 +1,16 @@
 export interface Sale {
-  activeSale: string;
+  activeSale: ActiveSale;
   shopName: string;
   shopAddress: string;
   saleName: string;
-  salePeriod: string;
+  saleFrom: string;
+  saleTo: string;
   saleDetail: string;
 }
+
+export interface File {
+  createdAt: string;
+  data: Sale[];
+}
+
+export type ActiveSale = "ACTIVE _SALE" | "SALE_NOTICE";
