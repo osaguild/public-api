@@ -8,9 +8,8 @@ import {
 
 jest.setTimeout(60000);
 
-describe("test for getShop()", () => {
-  it("[success]hit multiple shops", async () => {
-    // request
+describe("getShop()", () => {
+  it("[success]multiple shops", async () => {
     const req: GetShopRequest = {
       queryStringParameters: {
         prefecture: "saitama",
@@ -18,10 +17,8 @@ describe("test for getShop()", () => {
         shopName: "酒蔵 力",
       },
     };
-    // call api
     const res = await getShop(req);
     const body: Shop = JSON.parse(res.body);
-    // check response
     expect(res.statusCode).toBe(200);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(body.id).toBe("11000484");
@@ -32,8 +29,7 @@ describe("test for getShop()", () => {
     expect(body.unique).toBe(false);
   });
 
-  it("[success]hit one shop", async () => {
-    // request data
+  it("[success]single shop", async () => {
     const req: GetShopRequest = {
       queryStringParameters: {
         prefecture: "saitama",
@@ -41,10 +37,8 @@ describe("test for getShop()", () => {
         shopName: "ひとり味",
       },
     };
-    // call api
     const res = await getShop(req);
     const body: Shop = JSON.parse(res.body);
-    // check response
     expect(res.statusCode).toBe(200);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(body.id).toBe("11038373");
@@ -56,7 +50,6 @@ describe("test for getShop()", () => {
   });
 
   it("[failed]not found error", async () => {
-    // request data
     const req: GetShopRequest = {
       queryStringParameters: {
         prefecture: "saitama",
@@ -64,16 +57,13 @@ describe("test for getShop()", () => {
         shopName: "レストランラ・ヴォワール",
       },
     };
-    // call api
     const res = await getShop(req);
-    // check response
     expect(res.statusCode).toBe(404);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(res.body).toBe("can't find shop");
   });
 
-  it("[failed]request param error[prefecture]", async () => {
-    // request data
+  it("[failed]request param error(prefecture)", async () => {
     const req: GetShopRequest = {
       queryStringParameters: {
         prefecture: "tokyo",
@@ -81,16 +71,13 @@ describe("test for getShop()", () => {
         shopName: "レストランラ・ヴォワール",
       },
     };
-    // call api
     const res = await getShop(req);
-    // check response
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(res.body).toBe("prefecture isn't included");
   });
 
-  it("[failed]request param error[city]", async () => {
-    // request data
+  it("[failed]request param error(city)", async () => {
     const req: GetShopRequest = {
       queryStringParameters: {
         prefecture: "saitama",
@@ -98,28 +85,23 @@ describe("test for getShop()", () => {
         shopName: "レストランラ・ヴォワール",
       },
     };
-    // call api
     const res = await getShop(req);
-    // check response
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(res.body).toBe("city isn't included");
   });
 });
 
-describe("test for getRanking()", () => {
-  it("[success]ranking", async () => {
-    // request data
+describe("getRanking()", () => {
+  it("[success]", async () => {
     const req: GetRankingRequest = {
       queryStringParameters: {
         prefecture: "saitama",
         city: "saitama",
       },
     };
-    // call api
     const res = await getRanking(req);
     const body: Ranking[] = JSON.parse(res.body);
-    // check response
     expect(res.statusCode).toBe(200);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(Number(body[0].star)).toBeGreaterThan(3.5);
@@ -128,33 +110,27 @@ describe("test for getRanking()", () => {
     expect(body[99].ranking).toBe("100");
   });
 
-  it("[failed]request param error[prefecture]", async () => {
-    // request data
+  it("[failed]request param error(prefecture)", async () => {
     const req: GetRankingRequest = {
       queryStringParameters: {
         prefecture: "tokyo",
         city: "saitama",
       },
     };
-    // call api
     const res = await getRanking(req);
-    // check response
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(res.body).toBe("prefecture isn't included");
   });
 
-  it("[failed]request param error[city]", async () => {
-    // request data
+  it("[failed]request param error(city)", async () => {
     const req: GetRankingRequest = {
       queryStringParameters: {
         prefecture: "saitama",
         city: "urawa",
       },
     };
-    // call api
     const res = await getRanking(req);
-    // check response
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(res.body).toBe("city isn't included");
