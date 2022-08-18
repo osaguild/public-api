@@ -4,13 +4,12 @@ jest.setTimeout(60000);
 
 describe("getShop()", () => {
   it("[success]multiple shops", async () => {
-    const reqBody = {
-      prefecture: "saitama",
-      city: "saitama",
-      shopName: "酒蔵 力",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "saitama",
+        city: "saitama",
+        shopName: "酒蔵 力",
+      },
     };
     const res = await getShop(req);
     const resBody: Shop = JSON.parse(res.body);
@@ -25,13 +24,12 @@ describe("getShop()", () => {
   });
 
   it("[success]single shop", async () => {
-    const reqBody = {
-      prefecture: "saitama",
-      city: "saitama",
-      shopName: "ひとり味",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "saitama",
+        city: "saitama",
+        shopName: "ひとり味",
+      },
     };
     const res = await getShop(req);
     const resBody: Shop = JSON.parse(res.body);
@@ -46,13 +44,12 @@ describe("getShop()", () => {
   });
 
   it("[failed]not found error", async () => {
-    const reqBody = {
-      prefecture: "saitama",
-      city: "saitama",
-      shopName: "レストランラ・ヴォワール",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "saitama",
+        city: "saitama",
+        shopName: "レストランラ・ヴォワール",
+      },
     };
     const res = await getShop(req);
     expect(res.statusCode).toBe(404);
@@ -61,13 +58,12 @@ describe("getShop()", () => {
   });
 
   it("[failed]request param error(prefecture)", async () => {
-    const reqBody = {
-      prefecture: "tokyo",
-      city: "saitama",
-      shopName: "レストランラ・ヴォワール",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "tokyo",
+        city: "saitama",
+        shopName: "レストランラ・ヴォワール",
+      },
     };
     const res = await getShop(req);
     expect(res.statusCode).toBe(400);
@@ -76,13 +72,12 @@ describe("getShop()", () => {
   });
 
   it("[failed]request param error(city)", async () => {
-    const reqBody = {
-      prefecture: "saitama",
-      city: "urawa",
-      shopName: "レストランラ・ヴォワール",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "saitama",
+        city: "urawa",
+        shopName: "レストランラ・ヴォワール",
+      },
     };
     const res = await getShop(req);
     expect(res.statusCode).toBe(400);
@@ -93,12 +88,11 @@ describe("getShop()", () => {
 
 describe("getRanking()", () => {
   it("[success]", async () => {
-    const reqBody = {
-      prefecture: "saitama",
-      city: "saitama",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "saitama",
+        city: "saitama",
+      },
     };
     const res = await getRanking(req);
     const resBody: Ranking[] = JSON.parse(res.body);
@@ -111,12 +105,11 @@ describe("getRanking()", () => {
   });
 
   it("[failed]request param error(prefecture)", async () => {
-    const reqBody = {
-      prefecture: "tokyo",
-      city: "saitama",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "tokyo",
+        city: "saitama",
+      },
     };
     const res = await getRanking(req);
     expect(res.statusCode).toBe(400);
@@ -125,12 +118,11 @@ describe("getRanking()", () => {
   });
 
   it("[failed]request param error(city)", async () => {
-    const reqBody = {
-      prefecture: "saitama",
-      city: "urawa",
-    };
     const req = {
-      queryStringParameters: JSON.stringify(reqBody),
+      queryStringParameters: {
+        prefecture: "saitama",
+        city: "urawa",
+      },
     };
     const res = await getRanking(req);
     expect(res.statusCode).toBe(400);

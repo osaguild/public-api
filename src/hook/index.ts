@@ -1,4 +1,4 @@
-import { PostRequest, parseRequestBody } from "../utils/request";
+import { PostRequest, parsePostRequestBody } from "../utils/request";
 import { ApplicationError, ValidationError } from "../utils/error";
 import {
   successResponse,
@@ -77,7 +77,7 @@ export const hook = async (request: PostRequest) => {
   };
 
   try {
-    const body = parseRequestBody<RequestBody>(request.body);
+    const body = parsePostRequestBody<RequestBody>(request.body);
     validate(body);
     await Promise.all([sendKaldiMessage(), sendShamaisonMessage()]);
     return successResponse("success");

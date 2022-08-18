@@ -7,10 +7,10 @@ interface PostRequest {
 
 // get request via api gateway
 interface GetRequest {
-  queryStringParameters: string;
+  queryStringParameters: object;
 }
 
-const parseRequestBody = <T>(body: string) => {
+const parsePostRequestBody = <T>(body: string) => {
   try {
     return JSON.parse(body) as T;
   } catch (e) {
@@ -18,4 +18,17 @@ const parseRequestBody = <T>(body: string) => {
   }
 };
 
-export { PostRequest, GetRequest, parseRequestBody };
+const convertQueryStringToRequestBody = <T>(queryString: object) => {
+  try {
+    const requestBody = { ...queryString } as T;
+    return requestBody;
+  } catch (e) {
+    throw new ValidationError("request body doesn't match format");
+  }
+};
+export {
+  PostRequest,
+  GetRequest,
+  parsePostRequestBody,
+  convertQueryStringToRequestBody,
+};

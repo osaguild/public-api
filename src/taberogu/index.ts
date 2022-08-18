@@ -7,7 +7,7 @@ import {
   successResponse,
 } from "../utils/response";
 import { ValidationError, NotFoundError } from "../utils/error";
-import { GetRequest, parseRequestBody } from "../utils/request";
+import { GetRequest, convertQueryStringToRequestBody } from "../utils/request";
 
 const TABEROGU_URI = "https://tabelog.com";
 
@@ -116,7 +116,7 @@ const getShop = async (request: GetRequest) => {
   };
 
   try {
-    const shopRequestBody = parseRequestBody<ShopRequestBody>(
+    const shopRequestBody = convertQueryStringToRequestBody<ShopRequestBody>(
       request.queryStringParameters
     );
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
@@ -191,9 +191,10 @@ const getRanking = async (request: GetRequest) => {
   };
 
   try {
-    const rankingRequestBody = parseRequestBody<RankingRequestBody>(
-      request.queryStringParameters
-    );
+    const rankingRequestBody =
+      convertQueryStringToRequestBody<RankingRequestBody>(
+        request.queryStringParameters
+      );
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
       rankingRequestBody.prefecture,
       rankingRequestBody.city
