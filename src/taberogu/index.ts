@@ -1,19 +1,51 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import {
-  Prefecture,
-  GetShopRequest,
-  GetRankingRequest,
-  Shop,
-  Ranking,
-} from "./types";
-import {
   badRequestErrorResponse,
   notFoundErrorResponse,
-  unknownErrorResponse,
+  applicationErrorResponse,
   successResponse,
-} from "../common/response";
-import { BadRequestError, NotFoundError } from "../common/error";
+} from "../utils/response";
+import { ValidationError, NotFoundError } from "../utils/error";
+import { GetRequest, parseRequestBody } from "../utils/request";
+
+const TABEROGU_URI = "https://tabelog.com";
+
+type Prefecture = {
+  name: string;
+  code: string;
+  cities: City[];
+};
+
+type City = {
+  name: string;
+  code: string;
+};
+
+type Shop = {
+  id: string;
+  url: string;
+  star: string;
+  unique: boolean;
+};
+
+type Ranking = {
+  id: string;
+  url: string;
+  star: string;
+  ranking: string;
+};
+
+interface ShopRequestBody {
+  prefecture: string;
+  city: string;
+  shopName: string;
+}
+
+interface RankingRequestBody {
+  prefecture: string;
+  city: string;
+}
 
 const searchableAreas: Prefecture[] = [
   {
@@ -40,13 +72,13 @@ const getPrefectureAndCityCode = (prefectureName: string, cityName: string) => {
     }
   }
   // if specified parameter isn't included, throw error
-  if (!prefectureCode) throw new BadRequestError("prefecture isn't included");
-  if (!cityCode) throw new BadRequestError("city isn't included");
+  if (!prefectureCode) throw new ValidationError("prefecture isn't included");
+  if (!cityCode) throw new ValidationError("city isn't included");
 
   return { prefectureCode, cityCode };
 };
 
-export const getShop = async (request: GetShopRequest) => {
+const getShop = async (request: GetRequest) => {
   const scraping = async (
     prefectureCode: string,
     cityCode: string,
@@ -54,7 +86,7 @@ export const getShop = async (request: GetShopRequest) => {
   ) => {
     // get html contents from taberogu
     const uri = encodeURI(
-      `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/?vs=1&sw=${shopName}`
+      `${TABEROGU_URI}/${prefectureCode}/${cityCode}/rstLst/?vs=1&sw=${shopName}`
     );
     const shopIds: string[] = [];
     const shopUrls: string[] = [];
@@ -84,27 +116,30 @@ export const getShop = async (request: GetShopRequest) => {
   };
 
   try {
+    const shopRequestBody = parseRequestBody<ShopRequestBody>(
+      request.queryStringParameters
+    );
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
-      request.queryStringParameters.prefecture,
-      request.queryStringParameters.city
+      shopRequestBody.prefecture,
+      shopRequestBody.city
     );
     const shop = await scraping(
       prefectureCode,
       cityCode,
-      request.queryStringParameters.shopName
+      shopRequestBody.shopName
     );
 
     return successResponse(JSON.stringify(shop));
   } catch (e) {
-    return e instanceof BadRequestError
+    return e instanceof ValidationError
       ? badRequestErrorResponse(e.message)
       : e instanceof NotFoundError
       ? notFoundErrorResponse(e.message)
-      : unknownErrorResponse();
+      : applicationErrorResponse("unexpected error");
   }
 };
 
-export const getRanking = async (request: GetRankingRequest) => {
+const getRanking = async (request: GetRequest) => {
   const scraping = async (prefectureCode: string, cityCode: string) => {
     // get ranking uris for scraping
     const uris = () => {
@@ -112,7 +147,7 @@ export const getRanking = async (request: GetRankingRequest) => {
       for (let page = 1; page <= 5; page++) {
         _uris.push(
           encodeURI(
-            `https://tabelog.com/${prefectureCode}/${cityCode}/rstLst/${page}/?Srt=D&SrtT=rt&sort_mode=1&select_sort_flg=1`
+            `${TABEROGU_URI}/${prefectureCode}/${cityCode}/rstLst/${page}/?Srt=D&SrtT=rt&sort_mode=1&select_sort_flg=1`
           )
         );
       }
@@ -156,18 +191,31 @@ export const getRanking = async (request: GetRankingRequest) => {
   };
 
   try {
+    const rankingRequestBody = parseRequestBody<RankingRequestBody>(
+      request.queryStringParameters
+    );
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
-      request.queryStringParameters.prefecture,
-      request.queryStringParameters.city
+      rankingRequestBody.prefecture,
+      rankingRequestBody.city
     );
     const ranking = (await scraping(prefectureCode, cityCode)).flat();
 
     return successResponse(JSON.stringify(ranking));
   } catch (e) {
-    return e instanceof BadRequestError
+    console.log(e);
+    return e instanceof ValidationError
       ? badRequestErrorResponse(e.message)
       : e instanceof NotFoundError
       ? notFoundErrorResponse(e.message)
-      : unknownErrorResponse();
+      : applicationErrorResponse("unexpected error");
   }
+};
+
+export {
+  getShop,
+  getRanking,
+  ShopRequestBody,
+  RankingRequestBody,
+  Shop,
+  Ranking,
 };

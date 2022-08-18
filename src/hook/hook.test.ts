@@ -1,12 +1,11 @@
-import { hook } from "../src/hook";
-import { HookRequestBody } from "../src/hook/types";
-import { PostRequest } from "../src/common/types";
+import { hook } from "../hook";
+import { PostRequest } from "../utils/request";
 import * as clone from "clone";
 
 jest.setTimeout(10000);
 
 describe("hook()", () => {
-  const body: HookRequestBody = {
+  const body = {
     action: "completed",
     workflow_run: {
       name: "scraping dev",
@@ -61,7 +60,7 @@ describe("hook()", () => {
     const res = await hook(req);
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("workflow is incorrect");
+    expect(res.body).toBe("workflow is incorrect at develop");
   });
 
   it("[failed]request param error(path)", async () => {
@@ -71,6 +70,6 @@ describe("hook()", () => {
     const res = await hook(req);
     expect(res.statusCode).toBe(400);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(res.body).toBe("workflow is incorrect");
+    expect(res.body).toBe("workflow is incorrect at develop");
   });
 });
