@@ -7,7 +7,7 @@ import {
   successResponse,
 } from "../utils/response";
 import { ValidationError, NotFoundError } from "../utils/error";
-import { GetRequest, convertQueryStringToRequestBody } from "../utils/request";
+import { GetRequest } from "../utils/request";
 
 const TABEROGU_URI = "https://tabelog.com";
 
@@ -36,15 +36,19 @@ type Ranking = {
   ranking: string;
 };
 
-interface ShopRequestBody {
-  prefecture: string;
-  city: string;
-  shopName: string;
+interface ShopRequest extends GetRequest {
+  queryStringParameters: {
+    prefecture: string;
+    city: string;
+    shopName: string;
+  };
 }
 
-interface RankingRequestBody {
-  prefecture: string;
-  city: string;
+interface RankingRequest extends GetRequest {
+  queryStringParameters: {
+    prefecture: string;
+    city: string;
+  };
 }
 
 const searchableAreas: Prefecture[] = [
@@ -78,7 +82,7 @@ const getPrefectureAndCityCode = (prefectureName: string, cityName: string) => {
   return { prefectureCode, cityCode };
 };
 
-const getShop = async (request: GetRequest) => {
+const getShop = async (request: ShopRequest) => {
   const scraping = async (
     prefectureCode: string,
     cityCode: string,
@@ -116,17 +120,14 @@ const getShop = async (request: GetRequest) => {
   };
 
   try {
-    const shopRequestBody = convertQueryStringToRequestBody<ShopRequestBody>(
-      request.queryStringParameters
-    );
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
-      shopRequestBody.prefecture,
-      shopRequestBody.city
+      request.queryStringParameters.prefecture,
+      request.queryStringParameters.city
     );
     const shop = await scraping(
       prefectureCode,
       cityCode,
-      shopRequestBody.shopName
+      request.queryStringParameters.shopName
     );
 
     return successResponse(JSON.stringify(shop));
@@ -139,7 +140,7 @@ const getShop = async (request: GetRequest) => {
   }
 };
 
-const getRanking = async (request: GetRequest) => {
+const getRanking = async (request: RankingRequest) => {
   const scraping = async (prefectureCode: string, cityCode: string) => {
     // get ranking uris for scraping
     const uris = () => {
@@ -191,13 +192,9 @@ const getRanking = async (request: GetRequest) => {
   };
 
   try {
-    const rankingRequestBody =
-      convertQueryStringToRequestBody<RankingRequestBody>(
-        request.queryStringParameters
-      );
     const { prefectureCode, cityCode } = getPrefectureAndCityCode(
-      rankingRequestBody.prefecture,
-      rankingRequestBody.city
+      request.queryStringParameters.prefecture,
+      request.queryStringParameters.city
     );
     const ranking = (await scraping(prefectureCode, cityCode)).flat();
 
@@ -212,11 +209,4 @@ const getRanking = async (request: GetRequest) => {
   }
 };
 
-export {
-  getShop,
-  getRanking,
-  ShopRequestBody,
-  RankingRequestBody,
-  Shop,
-  Ranking,
-};
+export { getShop, getRanking, ShopRequest, RankingRequest, Shop, Ranking };
