@@ -1,4 +1,10 @@
-import { Building, createShamaisonMessage } from "../shamaison";
+import {
+  Building,
+  Station,
+  createShamaisonMessage,
+  findRooms,
+  findBuildings,
+} from "../shamaison";
 
 jest.setTimeout(10000);
 
@@ -54,8 +60,52 @@ describe("createShamaisonMessage()", () => {
   });
 });
 
+describe("findRooms()", () => {
+  it("[failed]set no param", async () => {
+    const res = await findRooms(buildings[0].rooms, []);
+    expect(res.length).toBe(0);
+  });
+
+  it("[success]set single param", async () => {
+    const res = await findRooms(buildings[0].rooms, ["1LDK"]);
+    expect(res.length).toBe(1);
+    expect(res[0].floorPlan).toBe("1LDK");
+  });
+
+  it("[failed]set single param but doesn't hit", async () => {
+    const res = await findRooms(buildings[0].rooms, ["1DK"]);
+    expect(res.length).toBe(0);
+  });
+
+  it("[success]set multiple params", async () => {
+    const res = await findRooms(buildings[0].rooms, ["1LDK", "2LDK"]);
+    expect(res.length).toBe(2);
+    expect(res[0].floorPlan).toBe("1LDK");
+    expect(res[1].floorPlan).toBe("2LDK");
+  });
+
+  it("[failed]set multiple params but doesn't hit", async () => {
+    const res = await findRooms(buildings[0].rooms, ["1DK", "2DK"]);
+    expect(res.length).toBe(0);
+  });
+});
+
+describe("findBuildings()", () => {
+  it("[success]hit multiple buildings", async () => {
+    const res = await findBuildings(buildings, ["1LDK", "3LDK"]);
+    expect(res.length).toBe(2);
+    expect(res[0].name).toBe("物件A");
+    expect(res[1].name).toBe("物件C");
+  });
+
+  it("[failed]doesn't hit buildings", async () => {
+    const res = await findBuildings(buildings, ["1DK", "2DK"]);
+    expect(res.length).toBe(0);
+  });
+});
+
 // below is the data for test
-const stations = [
+const stations: Station[] = [
   {
     name: "新宿駅",
     url: "/tokyo/route/1/station/1",
@@ -70,7 +120,7 @@ const stations = [
   },
 ];
 
-const buildings = [
+const buildings: Building[] = [
   {
     name: "物件A",
     address: "東京都新宿区xxx",
@@ -180,5 +230,5 @@ const controllableBuildings = (repeat: number) => {
       url: "https://www.shamaison.com/test/c/",
       rooms: [],
     },
-  ];
+  ] as Building[];
 };

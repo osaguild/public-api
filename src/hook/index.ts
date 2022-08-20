@@ -10,7 +10,11 @@ import { getLatestFile } from "../github";
 import { KaldiSaleInfo, findSales, createKaldiMessage } from "../kaldi";
 import { formatFileNameToDate } from "../utils/date";
 import { sendLineMessage } from "../line";
-import { createShamaisonMessage, ShamaisonBuildingInfo } from "../shamaison";
+import {
+  createShamaisonMessage,
+  ShamaisonBuildingInfo,
+  findBuildings,
+} from "../shamaison";
 
 interface RequestBody {
   action: string;
@@ -68,8 +72,12 @@ export const hook = async (request: PostRequest) => {
   const sendShamaisonMessage = async () => {
     const file = await getLatestFile<ShamaisonBuildingInfo>("SHAMAISON");
     const shamaisonBuildingInfo = file.data;
-    const message = createShamaisonMessage(
+    const buildings = findBuildings(
       shamaisonBuildingInfo.data,
+      globalConfig().SHAMAISON_TARGET_FLOOR_PLANS
+    );
+    const message = createShamaisonMessage(
+      buildings,
       formatFileNameToDate(file.name),
       shamaisonBuildingInfo.stations
     );
