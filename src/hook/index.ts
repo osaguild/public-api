@@ -74,11 +74,14 @@ export const hook = async (request: PostRequest) => {
     const shamaisonBuildingInfo = file.data;
     const buildings = findBuildings(
       shamaisonBuildingInfo.data,
+      globalConfig().SHAMAISON_TARGET_STATIONS,
       globalConfig().SHAMAISON_TARGET_FLOOR_PLANS
     );
     const message = createShamaisonMessage(
       buildings,
       formatFileNameToDate(file.name),
+      globalConfig().SHAMAISON_TARGET_STATIONS,
+      globalConfig().SHAMAISON_TARGET_FLOOR_PLANS,
       shamaisonBuildingInfo.stations
     );
     await sendLineMessage("SHAMAISON", message);

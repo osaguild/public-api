@@ -7,6 +7,7 @@ type Config = {
   KALDI_CHANNEL_ACCESS_TOKEN: string;
   SHAMAISON_CHANNEL_ACCESS_TOKEN: string;
   SHAMAISON_TARGET_FLOOR_PLANS: FloorPlan[];
+  SHAMAISON_TARGET_STATIONS: string[];
 };
 
 const globalConfig = () => {
@@ -18,12 +19,16 @@ const globalConfig = () => {
   const SHAMAISON_TARGET_FLOOR_PLANS = JSON.parse(
     process.env.SHAMAISON_TARGET_FLOOR_PLANS as string
   );
+  const SHAMAISON_TARGET_STATIONS = JSON.parse(
+    process.env.SHAMAISON_TARGET_STATIONS as string
+  );
   return {
     HOOK_TARGET_BRANCH,
     KALDI_TARGET_PREFECTURE,
     KALDI_CHANNEL_ACCESS_TOKEN,
     SHAMAISON_CHANNEL_ACCESS_TOKEN,
     SHAMAISON_TARGET_FLOOR_PLANS,
+    SHAMAISON_TARGET_STATIONS,
   } as Config;
 };
 

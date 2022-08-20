@@ -1,6 +1,7 @@
 import {
   Building,
   Station,
+  FloorPlan,
   createShamaisonMessage,
   findRooms,
   findBuildings,
@@ -13,10 +14,12 @@ describe("createShamaisonMessage()", () => {
     const res = await createShamaisonMessage(
       [] as Building[],
       new Date(2022, 7, 1),
-      stations
+      stations,
+      floorPlans,
+      scrapingTargetStations
     );
     const message =
-      "🎉2022年8月1日 新宿駅/池袋駅/浦和駅の物件情報🎉\n\n対象地域の物件情報はありません。\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
+      "🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n対象地域の物件情報はありません。\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
     expect(res).toBe(message);
   });
 
@@ -24,36 +27,42 @@ describe("createShamaisonMessage()", () => {
     const res = await createShamaisonMessage(
       buildings,
       new Date(2022, 7, 1),
-      stations
+      stations,
+      floorPlans,
+      scrapingTargetStations
     );
     const message =
-      "🎉2022年8月1日 新宿駅/池袋駅/浦和駅の物件情報🎉\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\nhttps://www.shamaison.com/test/b/\n\n【物件C】\n浦和駅 徒歩20分\nhttps://www.shamaison.com/test/c/\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
+      "🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\nhttps://www.shamaison.com/test/b/\n\n【物件C】\n浦和駅 徒歩20分\nhttps://www.shamaison.com/test/c/\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
     expect(res).toBe(message);
   });
 
   it("[success]under 5000 character message", async () => {
-    // 233 repeats length is 4988 characters
-    const repeat = 233;
+    // 232 repeats length is 4992 characters
+    const repeat = 232;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
-      stations
+      stations,
+      floorPlans,
+      scrapingTargetStations
     );
-    const message = `🎉2022年8月1日 新宿駅/池袋駅/浦和駅の物件情報🎉\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\n${"20 length characters".repeat(
+    const message = `🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\n${"20 length characters".repeat(
       repeat
     )}\n\n【物件C】\n浦和駅 徒歩20分\nhttps://www.shamaison.com/test/c/\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3`;
     expect(res).toBe(message);
   });
 
   it("[success]over 5000 character message", async () => {
-    // 234 repeats length is 4983 characters and building 3 isn't shown
-    const repeat = 234;
+    // 233 repeats length is 4985 characters and building 3 isn't shown
+    const repeat = 233;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
-      stations
+      stations,
+      floorPlans,
+      scrapingTargetStations
     );
-    const message = `🎉2022年8月1日 新宿駅/池袋駅/浦和駅の物件情報🎉\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\n${"20 length characters".repeat(
+    const message = `🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\n${"20 length characters".repeat(
       repeat
     )}\n\n※文字数制限のため2/4件を表示しています。\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3`;
     expect(res).toBe(message);
@@ -91,21 +100,53 @@ describe("findRooms()", () => {
 });
 
 describe("findBuildings()", () => {
-  it("[success]hit multiple buildings", async () => {
-    const res = await findBuildings(buildings, ["1LDK", "3LDK"]);
-    expect(res.length).toBe(2);
-    expect(res[0].name).toBe("物件A");
-    expect(res[1].name).toBe("物件C");
+  it("[failed]set no param", async () => {
+    const res = await findBuildings(buildings, [], ["1LDK", "2LDK", "3LDK"]);
+    expect(res.length).toBe(0);
   });
 
-  it("[failed]doesn't hit buildings", async () => {
-    const res = await findBuildings(buildings, ["1DK", "2DK"]);
+  it("[success]set single param", async () => {
+    const res = await findBuildings(
+      buildings,
+      ["新宿駅"],
+      ["1LDK", "2LDK", "3LDK"]
+    );
+    expect(res.length).toBe(1);
+    expect(res[0].station).toBe("新宿駅");
+  });
+
+  it("[failed]set single param but doesn't hit", async () => {
+    const res = await findBuildings(
+      buildings,
+      ["東京駅"],
+      ["1LDK", "2LDK", "3LDK"]
+    );
+    expect(res.length).toBe(0);
+  });
+
+  it("[success]set multiple param", async () => {
+    const res = await findBuildings(
+      buildings,
+      ["新宿駅", "池袋駅"],
+      ["1LDK", "2LDK", "3LDK"]
+    );
+    expect(res.length).toBe(2);
+    expect(res[0].station).toBe("新宿駅");
+    expect(res[1].station).toBe("池袋駅");
+  });
+
+  it("[failed]set multiple param but doesn't hit", async () => {
+    const res = await findBuildings(
+      buildings,
+      ["東京駅", "渋谷駅"],
+      ["1LDK", "2LDK", "3LDK"]
+    );
     expect(res.length).toBe(0);
   });
 });
 
 // below is the data for test
-const stations: Station[] = [
+const scrapingTargetStations: Station[] = [
   {
     name: "新宿駅",
     url: "/tokyo/route/1/station/1",
@@ -119,6 +160,10 @@ const stations: Station[] = [
     url: "/tokyo/route/2/station/3",
   },
 ];
+
+const stations = ["新宿駅", "池袋駅", "浦和駅"];
+
+const floorPlans: FloorPlan[] = ["1LDK", "2LDK", "3LDK"];
 
 const buildings: Building[] = [
   {
