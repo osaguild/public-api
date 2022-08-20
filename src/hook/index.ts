@@ -1,60 +1,102 @@
-import { HookRequestBody } from "./types";
-import { PostRequest } from "../common/types";
-import { ApplicationError, BadRequestError } from "../common/error";
+import { PostRequest } from "../utils/request";
+import { ApplicationError, ValidationError } from "../utils/error";
 import {
   successResponse,
   badRequestErrorResponse,
   applicationErrorResponse,
-  unknownErrorResponse,
-} from "../common/response";
-import { sendKaldiMessage } from "../kaldi";
-import { sendShamaisonMessage } from "../shamaison";
+} from "../utils/response";
+import { globalConfig } from "../config";
+import { getLatestFile } from "../github";
+import { KaldiSaleInfo, findSales, createKaldiMessage } from "../kaldi";
+import { formatFileNameToDate } from "../utils/date";
+import { sendLineMessage } from "../line";
+import {
+  createShamaisonMessage,
+  ShamaisonBuildingInfo,
+  findBuildings,
+} from "../shamaison";
 
-const checkRequest = (body: HookRequestBody) => {
-  // check completed status
-  if (
-    body.action !== "completed" ||
-    body.workflow_run.status !== "completed" ||
-    body.workflow_run.conclusion !== "success"
-  )
-    throw new BadRequestError("workflow isn't completed");
-
-  // check target workflow for dev
-  if (
-    process.env.HOOK_TARGET_BRANCH === "develop" &&
-    (body.workflow_run.name !== "scraping dev" ||
-      body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
-  )
-    throw new BadRequestError("workflow is incorrect");
-
-  // check target workflow for prd
-  if (
-    process.env.HOOK_TARGET_BRANCH === "main" &&
-    (body.workflow_run.name !== "scraping prd" ||
-      body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
-  )
-    throw new BadRequestError("workflow is incorrect");
-};
+interface RequestBody {
+  action: string;
+  workflow_run: {
+    name: string;
+    path: string;
+    status: string;
+    conclusion: string;
+  };
+}
 
 export const hook = async (request: PostRequest) => {
+  // check if the request matches the target github webhook.
+  const validate = (body: RequestBody) => {
+    // check completed status
+    if (
+      body.action !== "completed" ||
+      body.workflow_run.status !== "completed" ||
+      body.workflow_run.conclusion !== "success"
+    )
+      throw new ValidationError("workflow isn't completed");
+    // check target workflow for dev
+    if (
+      globalConfig().HOOK_TARGET_BRANCH === "develop" &&
+      (body.workflow_run.name !== "scraping dev" ||
+        body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
+    )
+      throw new ValidationError("workflow is incorrect at develop");
+    // check target workflow for prd
+    if (
+      globalConfig().HOOK_TARGET_BRANCH === "main" &&
+      (body.workflow_run.name !== "scraping prd" ||
+        body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
+    )
+      throw new ValidationError("workflow is incorrect at main");
+  };
+
+  // send kaldi message
+  const sendKaldiMessage = async () => {
+    const file = await getLatestFile<KaldiSaleInfo>("KALDI");
+    const kaldiSaleInfo = file.data;
+    const sales = findSales(
+      kaldiSaleInfo.data,
+      globalConfig().KALDI_TARGET_PREFECTURE
+    );
+    const message = createKaldiMessage(
+      sales,
+      formatFileNameToDate(file.name),
+      globalConfig().KALDI_TARGET_PREFECTURE
+    );
+    await sendLineMessage("KALDI", message);
+  };
+
+  // send shamaison message
+  const sendShamaisonMessage = async () => {
+    const file = await getLatestFile<ShamaisonBuildingInfo>("SHAMAISON");
+    const shamaisonBuildingInfo = file.data;
+    const buildings = findBuildings(
+      shamaisonBuildingInfo.data,
+      globalConfig().SHAMAISON_TARGET_STATIONS,
+      globalConfig().SHAMAISON_TARGET_FLOOR_PLANS
+    );
+    const message = createShamaisonMessage(
+      buildings,
+      formatFileNameToDate(file.name),
+      globalConfig().SHAMAISON_TARGET_STATIONS,
+      globalConfig().SHAMAISON_TARGET_FLOOR_PLANS,
+      shamaisonBuildingInfo.stations
+    );
+    await sendLineMessage("SHAMAISON", message);
+  };
+
   try {
-    checkRequest(JSON.parse(request.body));
-    const kaldiResult = await sendKaldiMessage();
-    const shamaisonResult = await sendShamaisonMessage();
-    if (kaldiResult === "SUCCESS" && shamaisonResult === "SUCCESS") {
-      return successResponse("success");
-    } else if (kaldiResult === "FAILED" && shamaisonResult === "SUCCESS") {
-      throw new ApplicationError("kaldi is failed");
-    } else if (kaldiResult === "SUCCESS" && shamaisonResult === "FAILED") {
-      throw new ApplicationError("shamaison is failed");
-    } else {
-      throw new ApplicationError("kaldi and shamaison are failed");
-    }
+    validate(JSON.parse(request.body));
+    await Promise.all([sendKaldiMessage(), sendShamaisonMessage()]);
+    return successResponse("success");
   } catch (e) {
-    return e instanceof BadRequestError
+    console.log(e);
+    return e instanceof ValidationError
       ? badRequestErrorResponse(e.message)
       : e instanceof ApplicationError
       ? applicationErrorResponse(e.message)
-      : unknownErrorResponse();
+      : applicationErrorResponse("unexpected error");
   }
 };

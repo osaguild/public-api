@@ -17,6 +17,7 @@ export class Common extends Construct {
   constructor(scope: Construct, id: string, props: CommonProps) {
     super(scope, id);
 
+    // prd or dev
     const target = scope.node.tryGetContext("target");
     const context = scope.node.tryGetContext(target);
 

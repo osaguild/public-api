@@ -1,53 +1,133 @@
-import "dotenv/config";
-import { Building, File, Station } from "./types";
-import { ApplicationResult } from "../common/types";
-import { sendLineMessage } from "../messagingApi";
-import { getLatestFile } from "../github";
-import { getDateFromFileName } from "../utils";
+type Building = {
+  name: string;
+  address: string;
+  station: string;
+  distance: string;
+  yearBuilt: string;
+  numberOfStairs: number;
+  url: string;
+  rooms: Room[];
+};
 
-export const sendShamaisonMessage = async () => {
-  const createMessage = (
-    date: Date,
-    stations: Station[],
-    buildings: Building[]
-  ) => {
-    // e.g: 🎉2022年01月01日 新宿駅/池袋駅/東京駅の物件情報🎉
-    const title = `🎉${date.getFullYear()}年${
-      date.getMonth() + 1
-    }月${date.getDate()}日 ${stations
-      .map((e) => `${e.name}`)
-      .join("/")}の物件情報🎉\n`;
-    // e.g: 【シャーメゾン】JR山手線 新宿駅 徒歩10分 https://www.shamaison.com/tokyo/area/00000/00000000/
-    // get 100 buildings because of the limit of the message
-    const buildingInfo =
-      buildings.length === 0
-        ? "対象地域の物件情報はありません\n"
-        : buildings
-            .slice(0, 50)
-            .map((e) => {
-              return `【${e.name}】\n${e.station} ${e.distance}\n${e.url}\n`;
-            })
-            .join("\n");
-    // e.g: ※文字数制限のため上限50件として配信しています。
-    const warn = "※文字数制限のため上限50件として配信しています。\n";
-    // e.g: ⭐カルディ公式サイト⭐https://www.shamaison.com/tokyo/route/0000000/station/00000
-    const officialLink = `⭐シャーメゾン公式サイト⭐\n${stations
-      .map((e) => `${e.name}: https://www.shamaison.com${e.url}`)
-      .join("\n")}`;
+type Room = {
+  roomNo: string;
+  rent: number;
+  floorPlan: FloorPlan;
+  space: number;
+  url: string;
+};
 
-    return `${title}\n${buildingInfo}\n${warn}\n${officialLink}`;
-  };
+type Station = {
+  name: string;
+  url: string;
+};
 
-  try {
-    const latestFile = await getLatestFile("SHAMAISON");
-    if (!latestFile) throw new Error("can't get latest file");
-    const date = getDateFromFileName(latestFile.name);
-    const file: File = JSON.parse(latestFile.data);
-    const message = createMessage(date, file.stations, file.data);
-    const result = await sendLineMessage("SHAMAISON", message);
-    return result;
-  } catch (e) {
-    console.log("shamaison.sendShamaisonMessage is failed", e);
-    return "FAILED" as ApplicationResult;
+type ShamaisonBuildingInfo = {
+  createdAt: string;
+  stations: Station[];
+  data: Building[];
+};
+
+type FloorPlan =
+  | "1R"
+  | "1K"
+  | "1DK"
+  | "1LDK"
+  | "2K"
+  | "2DK"
+  | "2LDK"
+  | "3K"
+  | "3DK"
+  | "3LDK"
+  | "4K"
+  | "4DK"
+  | "4LDK"
+  | "5K"
+  | "5DK"
+  | "5LDK";
+
+const findBuildings = (
+  buildings: Building[],
+  stations: string[],
+  floorPlans: FloorPlan[]
+) =>
+  buildings
+    .map((e) => (stations.indexOf(e.station) !== -1 ? e : undefined))
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
+    .map((e) => (findRooms(e.rooms, floorPlans).length > 0 ? e : undefined))
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
+
+const findRooms = (rooms: Room[], floorPlans: FloorPlan[]) =>
+  rooms
+    .map((e) => (floorPlans.indexOf(e.floorPlan) !== -1 ? e : undefined))
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
+
+const createShamaisonMessage = (
+  buildings: Building[],
+  date: Date,
+  stations: string[],
+  floorPlans: FloorPlan[],
+  scrapingTargetStations: Station[]
+) => {
+  // e.g: 🎉2022年01月01日の物件情報🎉
+  const title = `🎉${date.getFullYear()}年${
+    date.getMonth() + 1
+  }月${date.getDate()}日の物件情報🎉\n`;
+
+  // e.g: [検索条件：新宿駅/池袋駅/1LDK/2LDK/3LDK]
+  const searchParam = `[検索条件：${stations.join("/")}/${floorPlans.join(
+    "/"
+  )}]\n`;
+
+  // e.g: ⭐カルディ公式サイト⭐https://www.shamaison.com/tokyo/route/0000000/station/00000
+  const officialLink = `⭐シャーメゾン公式サイト⭐\n${scrapingTargetStations
+    .map((e) => `${e.name}: https://www.shamaison.com${e.url}`)
+    .join("\n")}`;
+
+  // e.g(n/a): 対象地域の物件情報はありません。
+  // e.g(hit): 【シャーメゾン】JR山手線 新宿駅 徒歩10分 https://www.shamaison.com/tokyo/area/00000/00000000/
+  if (buildings.length === 0) {
+    const noApplicableBuilding = "対象地域の物件情報はありません。\n\n";
+    return `${title}${searchParam}\n${noApplicableBuilding}${officialLink}`;
+  } else {
+    let message = "";
+    let buildingsInfo = "";
+    for (let i = 0; i < buildings.length; i++) {
+      // if your message over 5000 characters, show warn message
+      const warn = `※文字数制限のため${i + 1}/${
+        buildings.length + 1
+      }件を表示しています。\n`;
+
+      // if message length isn't over 5000 characters, set building info
+      const nextBuildingsInfo =
+        buildingsInfo +
+        `【${buildings[i].name}】\n${buildings[i].station} ${buildings[i].distance}\n${buildings[i].url}\n\n`;
+
+      // if message length isn't over 5000 characters, set next message
+      const nextMessage =
+        i === buildings.length - 1
+          ? `${title}${searchParam}\n${nextBuildingsInfo}${officialLink}`
+          : `${title}${searchParam}\n${nextBuildingsInfo}${warn}\n${officialLink}`;
+
+      // check message length and set confirmed message
+      if (nextMessage.length <= 5000) {
+        buildingsInfo = nextBuildingsInfo;
+        message = nextMessage;
+      } else {
+        break;
+      }
+    }
+    return message;
   }
+};
+
+export {
+  findBuildings,
+  findRooms,
+  createShamaisonMessage,
+  Building,
+  Room,
+  Station,
+  FloorPlan,
+  ShamaisonBuildingInfo,
 };

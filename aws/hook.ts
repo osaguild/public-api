@@ -22,12 +22,16 @@ export class Hook extends Construct {
       functionName: `public-api-${target}-hook`,
       description: "hook",
       environment: {
+        HOOK_TARGET_BRANCH: process.env.HOOK_TARGET_BRANCH as string,
         KALDI_CHANNEL_ACCESS_TOKEN: process.env
           .KALDI_CHANNEL_ACCESS_TOKEN as string,
+        KALDI_TARGET_PREFECTURE: process.env.KALDI_TARGET_PREFECTURE as string,
         SHAMAISON_CHANNEL_ACCESS_TOKEN: process.env
           .SHAMAISON_CHANNEL_ACCESS_TOKEN as string,
-        HOOK_TARGET_BRANCH: process.env.HOOK_TARGET_BRANCH as string,
-        KALDI_PREFECTURE: process.env.KALDI_PREFECTURE as string,
+        SHAMAISON_TARGET_STATIONS: process.env
+          .SHAMAISON_TARGET_STATIONS as string,
+        SHAMAISON_TARGET_FLOOR_PLANS: process.env
+          .SHAMAISON_TARGET_FLOOR_PLANS as string,
       },
     });
   }
