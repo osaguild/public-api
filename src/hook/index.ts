@@ -65,7 +65,7 @@ export const hook = async (request: PostRequest) => {
       formatFileNameToDate(file.name),
       globalConfig().KALDI_TARGET_PREFECTURE
     );
-    await sendLineMessage("KALDI", message);
+    if (sales.length !== 0) await sendLineMessage("KALDI", message);
   };
 
   // send shamaison message
@@ -84,7 +84,7 @@ export const hook = async (request: PostRequest) => {
       globalConfig().SHAMAISON_TARGET_FLOOR_PLANS,
       shamaisonBuildingInfo.stations
     );
-    await sendLineMessage("SHAMAISON", message);
+    if (buildings.length !== 0) await sendLineMessage("SHAMAISON", message);
   };
 
   try {
