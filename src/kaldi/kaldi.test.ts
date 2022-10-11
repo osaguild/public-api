@@ -50,17 +50,6 @@ describe("findSales()", () => {
 });
 
 describe("createKaldiMessage()", () => {
-  it("[success]empty sale", async () => {
-    const _sales = await findSales(sales, "神奈川県");
-    const res = await createKaldiMessage(
-      _sales,
-      new Date(2022, 7, 1),
-      "神奈川県"
-    );
-    const message =
-      "🎉2022年8月1日 神奈川県のセール情報🎉\n\n対象地域のセール情報はありません\n\n⭐カルディ公式サイト⭐\nhttps://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35";
-    expect(res).toBe(message);
-  });
   it("[success]single sale", async () => {
     const _sales = await findSales(sales, "埼玉県");
     const res = await createKaldiMessage(

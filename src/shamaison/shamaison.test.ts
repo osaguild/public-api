@@ -10,19 +10,6 @@ import {
 jest.setTimeout(10000);
 
 describe("createShamaisonMessage()", () => {
-  it("[success]empty buildings", async () => {
-    const res = await createShamaisonMessage(
-      [] as Building[],
-      new Date(2022, 7, 1),
-      stations,
-      floorPlans,
-      scrapingTargetStations
-    );
-    const message =
-      "🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n対象地域の物件情報はありません。\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
-    expect(res).toBe(message);
-  });
-
   it("[success]multi buildings", async () => {
     const res = await createShamaisonMessage(
       buildings,
