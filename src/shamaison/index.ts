@@ -9,17 +9,34 @@ import {
 const findBuildings = (
   buildings: Building[],
   stations: string[],
-  floorPlans: FloorPlan[]
+  floorPlans: FloorPlan[],
+  minRent: number,
+  maxRent: number
 ) =>
   buildings
     .map((e) => (stations.indexOf(e.station) !== -1 ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
-    .map((e) => (findRooms(e.rooms, floorPlans).length > 0 ? e : undefined))
+    .map((e) => {
+      const rooms = findRooms(e.rooms, floorPlans, minRent, maxRent);
+      if (rooms.length > 0) {
+        e.rooms = rooms;
+        return e;
+      } else {
+        return undefined;
+      }
+    })
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
 
-const findRooms = (rooms: Room[], floorPlans: FloorPlan[]) =>
+const findRooms = (
+  rooms: Room[],
+  floorPlans: FloorPlan[],
+  minRent: number,
+  maxRent: number
+) =>
   rooms
     .map((e) => (floorPlans.indexOf(e.floorPlan) !== -1 ? e : undefined))
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
+    .map((e) => (e.rent >= minRent && e.rent <= maxRent ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
 
 const createShamaisonMessage = (

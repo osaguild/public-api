@@ -6,8 +6,10 @@ import {
   findRooms,
   findBuildings,
 } from "../shamaison";
+import * as lodash from "lodash";
 
 jest.setTimeout(10000);
+const _ = lodash;
 
 describe("createShamaisonMessage()", () => {
   it("[success]multi buildings", async () => {
@@ -57,78 +59,169 @@ describe("createShamaisonMessage()", () => {
 });
 
 describe("findRooms()", () => {
-  it("[failed]set no param", async () => {
-    const res = await findRooms(buildings[0].rooms, []);
-    expect(res.length).toBe(0);
+  describe("test for floorPlans param", () => {
+    it("[failed]set no param", async () => {
+      const res = await findRooms(buildings[0].rooms, [], 0, 100);
+      expect(res.length).toBe(0);
+    });
+
+    it("[success]set single param", async () => {
+      const res = await findRooms(buildings[0].rooms, ["1LDK"], 0, 100);
+      expect(res.length).toBe(1);
+      expect(res[0].floorPlan).toBe("1LDK");
+    });
+
+    it("[failed]set single param but doesn't hit", async () => {
+      const res = await findRooms(buildings[0].rooms, ["1DK"], 0, 100);
+      expect(res.length).toBe(0);
+    });
+
+    it("[success]set multiple params", async () => {
+      const res = await findRooms(buildings[0].rooms, ["1LDK", "2LDK"], 0, 100);
+      expect(res.length).toBe(2);
+      expect(res[0].floorPlan).toBe("1LDK");
+      expect(res[1].floorPlan).toBe("2LDK");
+    });
+
+    it("[failed]set multiple params but doesn't hit", async () => {
+      const res = await findRooms(buildings[0].rooms, ["1DK", "2DK"], 0, 100);
+      expect(res.length).toBe(0);
+    });
   });
 
-  it("[success]set single param", async () => {
-    const res = await findRooms(buildings[0].rooms, ["1LDK"]);
-    expect(res.length).toBe(1);
-    expect(res[0].floorPlan).toBe("1LDK");
-  });
+  describe("test for minRent and maxRent", () => {
+    it("[success]set the same rent for min and max rent", async () => {
+      const res = await findRooms(
+        buildings[0].rooms,
+        ["1LDK", "2LDK", "3LDK"],
+        12.5,
+        15.7
+      );
+      // rooms: 12.5万円 / 13.0万円 / 15.7万円
+      expect(res.length).toBe(3);
+      expect(res[0].rent).toBe(12.5);
+      expect(res[1].rent).toBe(13.0);
+      expect(res[2].rent).toBe(15.7);
+    });
 
-  it("[failed]set single param but doesn't hit", async () => {
-    const res = await findRooms(buildings[0].rooms, ["1DK"]);
-    expect(res.length).toBe(0);
-  });
+    it("[success]set higher than min rent", async () => {
+      const res = await findRooms(
+        buildings[0].rooms,
+        ["1LDK", "2LDK", "3LDK"],
+        12.6,
+        15.7
+      );
+      // rooms: 12.5万円 / 13.0万円 / 15.7万円
+      expect(res.length).toBe(2);
+      expect(res[0].rent).toBe(13.0);
+      expect(res[1].rent).toBe(15.7);
+    });
 
-  it("[success]set multiple params", async () => {
-    const res = await findRooms(buildings[0].rooms, ["1LDK", "2LDK"]);
-    expect(res.length).toBe(2);
-    expect(res[0].floorPlan).toBe("1LDK");
-    expect(res[1].floorPlan).toBe("2LDK");
-  });
-
-  it("[failed]set multiple params but doesn't hit", async () => {
-    const res = await findRooms(buildings[0].rooms, ["1DK", "2DK"]);
-    expect(res.length).toBe(0);
+    it("[success]set lower than max rent", async () => {
+      const res = await findRooms(
+        buildings[0].rooms,
+        ["1LDK", "2LDK", "3LDK"],
+        12.5,
+        15.6
+      );
+      // rooms: 12.5万円 / 13.0万円 / 15.7万円
+      expect(res.length).toBe(2);
+      expect(res[0].rent).toBe(12.5);
+      expect(res[1].rent).toBe(13.0);
+    });
   });
 });
 
 describe("findBuildings()", () => {
-  it("[failed]set no param", async () => {
-    const res = await findBuildings(buildings, [], ["1LDK", "2LDK", "3LDK"]);
-    expect(res.length).toBe(0);
+  describe("test for building param", () => {
+    it("[failed]set no param", async () => {
+      const res = await findBuildings(
+        buildings,
+        [],
+        ["1LDK", "2LDK", "3LDK"],
+        0,
+        100
+      );
+      expect(res.length).toBe(0);
+    });
+
+    it("[success]set single param", async () => {
+      const res = await findBuildings(
+        buildings,
+        ["新宿駅"],
+        ["1LDK", "2LDK", "3LDK"],
+        0,
+        100
+      );
+      expect(res.length).toBe(1);
+      expect(res[0].station).toBe("新宿駅");
+    });
+
+    it("[failed]set single param but doesn't hit", async () => {
+      const res = await findBuildings(
+        buildings,
+        ["東京駅"],
+        ["1LDK", "2LDK", "3LDK"],
+        0,
+        100
+      );
+      expect(res.length).toBe(0);
+    });
+
+    it("[success]set multiple param", async () => {
+      const res = await findBuildings(
+        buildings,
+        ["新宿駅", "池袋駅"],
+        ["1LDK", "2LDK", "3LDK"],
+        0,
+        100
+      );
+      expect(res.length).toBe(2);
+      expect(res[0].station).toBe("新宿駅");
+      expect(res[1].station).toBe("池袋駅");
+    });
+
+    it("[failed]set multiple param but doesn't hit", async () => {
+      const res = await findBuildings(
+        buildings,
+        ["東京駅", "渋谷駅"],
+        ["1LDK", "2LDK", "3LDK"],
+        0,
+        100
+      );
+      expect(res.length).toBe(0);
+    });
   });
 
-  it("[success]set single param", async () => {
-    const res = await findBuildings(
-      buildings,
-      ["新宿駅"],
-      ["1LDK", "2LDK", "3LDK"]
-    );
-    expect(res.length).toBe(1);
-    expect(res[0].station).toBe("新宿駅");
-  });
+  describe("test for rooms param", () => {
+    it("[success]1LDK, 8-12万円", async () => {
+      const _buildings = _.cloneDeep(buildings);
+      const res = await findBuildings(
+        _buildings,
+        ["新宿駅", "池袋駅", "浦和駅"],
+        ["1LDK"],
+        8,
+        12
+      );
+      // matches are 物件C 101
+      expect(res.length).toBe(1);
+      expect(res[0].name).toBe("物件C");
+      expect(res[0].rooms.length).toBe(1);
+      expect(res[0].rooms[0].roomNo).toBe("101");
+    });
 
-  it("[failed]set single param but doesn't hit", async () => {
-    const res = await findBuildings(
-      buildings,
-      ["東京駅"],
-      ["1LDK", "2LDK", "3LDK"]
-    );
-    expect(res.length).toBe(0);
-  });
-
-  it("[success]set multiple param", async () => {
-    const res = await findBuildings(
-      buildings,
-      ["新宿駅", "池袋駅"],
-      ["1LDK", "2LDK", "3LDK"]
-    );
-    expect(res.length).toBe(2);
-    expect(res[0].station).toBe("新宿駅");
-    expect(res[1].station).toBe("池袋駅");
-  });
-
-  it("[failed]set multiple param but doesn't hit", async () => {
-    const res = await findBuildings(
-      buildings,
-      ["東京駅", "渋谷駅"],
-      ["1LDK", "2LDK", "3LDK"]
-    );
-    expect(res.length).toBe(0);
+    it("[success]3LDK , 10-12万円", async () => {
+      const _buildings = _.cloneDeep(buildings);
+      const res = await findBuildings(
+        _buildings,
+        ["新宿駅", "池袋駅", "浦和駅"],
+        ["1LDK", "2LDK", "3LDK"],
+        10,
+        12
+      );
+      // not match
+      expect(res.length).toBe(0);
+    });
   });
 });
 

@@ -19,12 +19,8 @@ const getLatestFile = async <T>(appType: AppType) => {
   // make github uri to access files.
   const makeDataDirUri = (_appType: AppType) => {
     return _appType === "KALDI"
-      ? `${GITHUB_API_URI}/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=${
-          globalConfig().HOOK_TARGET_BRANCH
-        }`
-      : `${GITHUB_API_URI}/repos/osaguild/scheduled-scraper/contents/data/shamaison?ref=${
-          globalConfig().HOOK_TARGET_BRANCH
-        }`;
+      ? `${GITHUB_API_URI}/repos/osaguild/scheduled-scraper/contents/data/kaldi?ref=${globalConfig.HOOK_TARGET_BRANCH}`
+      : `${GITHUB_API_URI}/repos/osaguild/scheduled-scraper/contents/data/shamaison?ref=${globalConfig.HOOK_TARGET_BRANCH}`;
   };
 
   // content is metadata of file. you can access file using content.url.
