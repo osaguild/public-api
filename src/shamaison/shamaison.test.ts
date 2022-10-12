@@ -21,13 +21,33 @@ describe("createShamaisonMessage()", () => {
       scrapingTargetStations
     );
     const message =
-      "🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\nhttps://www.shamaison.com/test/b/\n\n【物件C】\n浦和駅 徒歩20分\nhttps://www.shamaison.com/test/c/\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
+      "🎉2022年8月1日の物件情報🎉\n" +
+      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n" +
+      "【物件A】\n" +
+      "新宿駅 徒歩10分\n" +
+      "101 1LDK 12.5万円\n" +
+      "102 2LDK 13万円\n" +
+      "103 3LDK 15.7万円\n" +
+      "https://www.shamaison.com/test/a/\n\n" +
+      "【物件B】\n" +
+      "池袋駅 徒歩15分\n" +
+      "202 2LDK 13万円\n" +
+      "https://www.shamaison.com/test/b/\n\n" +
+      "【物件C】\n" +
+      "浦和駅 徒歩20分\n" +
+      "101 1LDK 9.5万円\n" +
+      "303 2LDK 12.4万円\n" +
+      "https://www.shamaison.com/test/c/\n\n" +
+      "⭐シャーメゾン公式サイト⭐\n" +
+      "新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n" +
+      "池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n" +
+      "浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
     expect(res).toBe(message);
   });
 
   it("[success]under 5000 character message", async () => {
-    // 232 repeats length is 4992 characters
-    const repeat = 232;
+    // 230 repeats length is 4994 characters
+    const repeat = 230;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
@@ -35,15 +55,32 @@ describe("createShamaisonMessage()", () => {
       floorPlans,
       scrapingTargetStations
     );
-    const message = `🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\n${"20 length characters".repeat(
-      repeat
-    )}\n\n【物件C】\n浦和駅 徒歩20分\nhttps://www.shamaison.com/test/c/\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3`;
+    const message =
+      "🎉2022年8月1日の物件情報🎉\n" +
+      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n" +
+      "【物件A】\n" +
+      "新宿駅 徒歩10分\n" +
+      "101 1LDK 10万円\n" +
+      "https://www.shamaison.com/test/a/\n\n" +
+      "【物件B】\n" +
+      "池袋駅 徒歩15分\n" +
+      "101 1LDK 10万円\n" +
+      "20 length characters".repeat(repeat) +
+      "\n\n" +
+      "【物件C】\n" +
+      "浦和駅 徒歩20分\n" +
+      "101 1LDK 10万円\n" +
+      "https://www.shamaison.com/test/c/\n\n" +
+      "⭐シャーメゾン公式サイト⭐\n" +
+      "新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n" +
+      "池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n" +
+      "浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
     expect(res).toBe(message);
   });
 
   it("[success]over 5000 character message", async () => {
-    // 233 repeats length is 4985 characters and building 3 isn't shown
-    const repeat = 233;
+    // 231 repeats length is 4985 characters and building 3 isn't shown
+    const repeat = 231;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
@@ -51,9 +88,22 @@ describe("createShamaisonMessage()", () => {
       floorPlans,
       scrapingTargetStations
     );
-    const message = `🎉2022年8月1日の物件情報🎉\n[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n【物件A】\n新宿駅 徒歩10分\nhttps://www.shamaison.com/test/a/\n\n【物件B】\n池袋駅 徒歩15分\n${"20 length characters".repeat(
-      repeat
-    )}\n\n※文字数制限のため2/4件を表示しています。\n\n⭐シャーメゾン公式サイト⭐\n新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n浦和駅: https://www.shamaison.com/tokyo/route/2/station/3`;
+    const message =
+      "🎉2022年8月1日の物件情報🎉\n" +
+      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n" +
+      "【物件A】\n" +
+      "新宿駅 徒歩10分\n" +
+      "101 1LDK 10万円\n" +
+      "https://www.shamaison.com/test/a/\n\n" +
+      "【物件B】\n" +
+      "池袋駅 徒歩15分\n" +
+      "101 1LDK 10万円\n" +
+      "20 length characters".repeat(repeat) +
+      "\n\n※文字数制限のため2/3件を表示しています。\n\n" +
+      "⭐シャーメゾン公式サイト⭐\n" +
+      "新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n" +
+      "池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n" +
+      "浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
     expect(res).toBe(message);
   });
 });
@@ -442,7 +492,16 @@ const controllableBuildings = (repeat: number) => {
       yearBuilt: "2022-10-01T00:00:00+09:00",
       numberOfStairs: 1,
       url: "https://www.shamaison.com/test/a/",
-      rooms: [],
+      rooms: [
+        {
+          roomNo: "101",
+          rent: 10.0,
+          floorPlan: "1LDK",
+          space: 50.0,
+          url: "https://www.shamaison.com/test/a/101/",
+          isNew: true,
+        },
+      ],
     },
     {
       name: "物件B",
@@ -452,7 +511,16 @@ const controllableBuildings = (repeat: number) => {
       yearBuilt: "2022-11-01T00:00:00+09:00",
       numberOfStairs: 2,
       url: "20 length characters".repeat(repeat),
-      rooms: [],
+      rooms: [
+        {
+          roomNo: "101",
+          rent: 10.0,
+          floorPlan: "1LDK",
+          space: 50.0,
+          url: "https://www.shamaison.com/test/b/101/",
+          isNew: true,
+        },
+      ],
     },
     {
       name: "物件C",
@@ -462,7 +530,16 @@ const controllableBuildings = (repeat: number) => {
       yearBuilt: "2022-12-01T00:00:00+09:00",
       numberOfStairs: 3,
       url: "https://www.shamaison.com/test/c/",
-      rooms: [],
+      rooms: [
+        {
+          roomNo: "101",
+          rent: 10.0,
+          floorPlan: "1LDK",
+          space: 50.0,
+          url: "https://www.shamaison.com/test/c/101/",
+          isNew: true,
+        },
+      ],
     },
   ] as Building[];
 };

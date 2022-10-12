@@ -62,24 +62,31 @@ const createShamaisonMessage = (
     "/"
   )}]\n`;
 
-  // e.g: ⭐カルディ公式サイト⭐https://www.shamaison.com/tokyo/route/0000000/station/00000
+  // e.g: ⭐カルディ公式サイト⭐\nhttps://www.shamaison.com/tokyo/route/0000000/station/00000
   const officialLink = `⭐シャーメゾン公式サイト⭐\n${scrapingTargetStations
     .map((e) => `${e.name}: https://www.shamaison.com${e.url}`)
     .join("\n")}`;
 
-  // e.g: 【シャーメゾン】JR山手線 新宿駅 徒歩10分 https://www.shamaison.com/tokyo/area/00000/00000000/
+  // e.g: 【シャーメゾン】JR山手線 新宿駅 徒歩10分\n101 1LDK 10万円\n202 2LDK 15万円\nhttps://www.shamaison.com/tokyo/area/00000/00000000/
   let message = "";
   let buildingsInfo = "";
   for (let i = 0; i < buildings.length; i++) {
     // if your message over 5000 characters, show warn message
     const warn = `※文字数制限のため${i + 1}/${
-      buildings.length + 1
+      buildings.length
     }件を表示しています。\n`;
 
-    // if message length isn't over 5000 characters, set building info
+    // create room info
+    const nextRoomInfo = buildings[i].rooms
+      .map((e) => {
+        return `${e.roomNo} ${e.floorPlan} ${e.rent}万円`;
+      })
+      .join("\n");
+
+    // create building info
     const nextBuildingsInfo =
       buildingsInfo +
-      `【${buildings[i].name}】\n${buildings[i].station} ${buildings[i].distance}\n${buildings[i].url}\n\n`;
+      `【${buildings[i].name}】\n${buildings[i].station} ${buildings[i].distance}\n${nextRoomInfo}\n${buildings[i].url}\n\n`;
 
     // if message length isn't over 5000 characters, set next message
     const nextMessage =
