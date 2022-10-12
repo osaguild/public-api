@@ -11,13 +11,14 @@ const findBuildings = (
   stations: string[],
   floorPlans: FloorPlan[],
   minRent: number,
-  maxRent: number
+  maxRent: number,
+  onlyNew: boolean
 ) =>
   buildings
     .map((e) => (stations.indexOf(e.station) !== -1 ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
     .map((e) => {
-      const rooms = findRooms(e.rooms, floorPlans, minRent, maxRent);
+      const rooms = findRooms(e.rooms, floorPlans, minRent, maxRent, onlyNew);
       if (rooms.length > 0) {
         e.rooms = rooms;
         return e;
@@ -31,9 +32,14 @@ const findRooms = (
   rooms: Room[],
   floorPlans: FloorPlan[],
   minRent: number,
-  maxRent: number
+  maxRent: number,
+  onlyNew: boolean
 ) =>
   rooms
+    .map((e) => {
+      return !onlyNew ? e : onlyNew && e.isNew ? e : undefined;
+    })
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
     .map((e) => (floorPlans.indexOf(e.floorPlan) !== -1 ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
     .map((e) => (e.rent >= minRent && e.rent <= maxRent ? e : undefined))

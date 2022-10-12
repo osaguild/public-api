@@ -10,6 +10,7 @@ type Config = {
   SHAMAISON_TARGET_STATIONS: string[];
   SHAMAISON_TARGET_MIN_RENT: number;
   SHAMAISON_TARGET_MAX_RENT: number;
+  SHAMAISON_TARGET_ONLY_NEW: boolean;
 };
 
 const HOOK_TARGET_BRANCH = process.env.HOOK_TARGET_BRANCH;
@@ -29,6 +30,9 @@ const SHAMAISON_TARGET_MIN_RENT = Number(
 const SHAMAISON_TARGET_MAX_RENT = Number(
   process.env.SHAMAISON_TARGET_MAX_RENT as string
 );
+const SHAMAISON_TARGET_ONLY_NEW = Boolean(
+  process.env.SHAMAISON_TARGET_ONLY_NEW as string
+);
 
 const globalConfig = {
   HOOK_TARGET_BRANCH,
@@ -39,6 +43,7 @@ const globalConfig = {
   SHAMAISON_TARGET_STATIONS,
   SHAMAISON_TARGET_MIN_RENT,
   SHAMAISON_TARGET_MAX_RENT,
+  SHAMAISON_TARGET_ONLY_NEW,
 } as Config;
 
 export { Config, globalConfig };

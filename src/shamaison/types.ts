@@ -15,6 +15,7 @@ type Room = {
   floorPlan: FloorPlan;
   space: number;
   url: string;
+  isNew: boolean;
 };
 
 type Station = {

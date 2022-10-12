@@ -77,7 +77,8 @@ export const hook = async (request: PostRequest) => {
       globalConfig.SHAMAISON_TARGET_STATIONS,
       globalConfig.SHAMAISON_TARGET_FLOOR_PLANS,
       globalConfig.SHAMAISON_TARGET_MIN_RENT,
-      globalConfig.SHAMAISON_TARGET_MAX_RENT
+      globalConfig.SHAMAISON_TARGET_MAX_RENT,
+      globalConfig.SHAMAISON_TARGET_ONLY_NEW
     );
     const message = createShamaisonMessage(
       buildings,
