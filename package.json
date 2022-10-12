@@ -15,7 +15,9 @@
     "deploy-prd": "run-s compile deploy:prd",
     "deploy:dev": "cdk deploy --c target=dev --require-approval never",
     "deploy:prd": "cdk deploy --c target=prd --require-approval never",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "oat-dev": "ts-node ./src/oat/script.ts dev",
+    "oat-prd": "ts-node ./src/oat/script.ts prd"
   },
   "devDependencies": {
     "@types/clone": "^2.1.1",
