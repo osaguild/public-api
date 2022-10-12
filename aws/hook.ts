@@ -32,6 +32,12 @@ export class Hook extends Construct {
           .SHAMAISON_TARGET_STATIONS as string,
         SHAMAISON_TARGET_FLOOR_PLANS: process.env
           .SHAMAISON_TARGET_FLOOR_PLANS as string,
+        SHAMAISON_TARGET_MIN_RENT: process.env
+          .SHAMAISON_TARGET_MIN_RENT as string,
+        SHAMAISON_TARGET_MAX_RENT: process.env
+          .SHAMAISON_TARGET_MAX_RENT as string,
+        SHAMAISON_TARGET_ONLY_NEW: process.env
+          .SHAMAISON_TARGET_ONLY_NEW as string,
       },
     });
   }

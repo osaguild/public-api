@@ -38,14 +38,14 @@ export const hook = async (request: PostRequest) => {
       throw new ValidationError("workflow isn't completed");
     // check target workflow for dev
     if (
-      globalConfig().HOOK_TARGET_BRANCH === "develop" &&
+      globalConfig.HOOK_TARGET_BRANCH === "develop" &&
       (body.workflow_run.name !== "scraping dev" ||
         body.workflow_run.path !== ".github/workflows/scraping-dev.yaml")
     )
       throw new ValidationError("workflow is incorrect at develop");
     // check target workflow for prd
     if (
-      globalConfig().HOOK_TARGET_BRANCH === "main" &&
+      globalConfig.HOOK_TARGET_BRANCH === "main" &&
       (body.workflow_run.name !== "scraping prd" ||
         body.workflow_run.path !== ".github/workflows/scraping-prd.yaml")
     )
@@ -58,14 +58,14 @@ export const hook = async (request: PostRequest) => {
     const kaldiSaleInfo = file.data;
     const sales = findSales(
       kaldiSaleInfo.data,
-      globalConfig().KALDI_TARGET_PREFECTURE
+      globalConfig.KALDI_TARGET_PREFECTURE
     );
     const message = createKaldiMessage(
       sales,
       formatFileNameToDate(file.name),
-      globalConfig().KALDI_TARGET_PREFECTURE
+      globalConfig.KALDI_TARGET_PREFECTURE
     );
-    await sendLineMessage("KALDI", message);
+    if (sales.length !== 0) await sendLineMessage("KALDI", message);
   };
 
   // send shamaison message
@@ -74,17 +74,20 @@ export const hook = async (request: PostRequest) => {
     const shamaisonBuildingInfo = file.data;
     const buildings = findBuildings(
       shamaisonBuildingInfo.data,
-      globalConfig().SHAMAISON_TARGET_STATIONS,
-      globalConfig().SHAMAISON_TARGET_FLOOR_PLANS
+      globalConfig.SHAMAISON_TARGET_STATIONS,
+      globalConfig.SHAMAISON_TARGET_FLOOR_PLANS,
+      globalConfig.SHAMAISON_TARGET_MIN_RENT,
+      globalConfig.SHAMAISON_TARGET_MAX_RENT,
+      globalConfig.SHAMAISON_TARGET_ONLY_NEW
     );
     const message = createShamaisonMessage(
       buildings,
       formatFileNameToDate(file.name),
-      globalConfig().SHAMAISON_TARGET_STATIONS,
-      globalConfig().SHAMAISON_TARGET_FLOOR_PLANS,
+      globalConfig.SHAMAISON_TARGET_STATIONS,
+      globalConfig.SHAMAISON_TARGET_FLOOR_PLANS,
       shamaisonBuildingInfo.stations
     );
-    await sendLineMessage("SHAMAISON", message);
+    if (buildings.length !== 0) await sendLineMessage("SHAMAISON", message);
   };
 
   try {

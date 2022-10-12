@@ -27,16 +27,13 @@ const createKaldiMessage = (sales: Sale[], date: Date, prefecture: string) => {
   }月${date.getDate()}日 ${prefecture}のセール情報🎉\n`;
 
   // e.g: 【新宿店】2022/1/1 〜 2022/1/7
-  const saleInfo =
-    sales.length === 0
-      ? "対象地域のセール情報はありません\n"
-      : sales
-          .map((e) => {
-            return `【${e.shopName}】\n${formatDateToYYYYMMDD(
-              new Date(Date.parse(e.saleFrom))
-            )} 〜 ${formatDateToYYYYMMDD(new Date(Date.parse(e.saleTo)))}\n`;
-          })
-          .join("\n");
+  const saleInfo = sales
+    .map((e) => {
+      return `【${e.shopName}】\n${formatDateToYYYYMMDD(
+        new Date(Date.parse(e.saleFrom))
+      )} 〜 ${formatDateToYYYYMMDD(new Date(Date.parse(e.saleTo)))}\n`;
+    })
+    .join("\n");
 
   // e.g: ⭐カルディ公式サイト⭐https://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35
   const officialLink = `⭐カルディ公式サイト⭐\nhttps://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35`;

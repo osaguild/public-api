@@ -20,8 +20,8 @@ const sendLineMessage = async (appType: AppType, message: string) => {
   const config = (_appType: AppType) => {
     const getChannelAccessToken = () =>
       _appType === "KALDI"
-        ? globalConfig().KALDI_CHANNEL_ACCESS_TOKEN
-        : globalConfig().SHAMAISON_CHANNEL_ACCESS_TOKEN;
+        ? globalConfig.KALDI_CHANNEL_ACCESS_TOKEN
+        : globalConfig.SHAMAISON_CHANNEL_ACCESS_TOKEN;
 
     return {
       headers: {

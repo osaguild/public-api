@@ -1,65 +1,48 @@
-type Building = {
-  name: string;
-  address: string;
-  station: string;
-  distance: string;
-  yearBuilt: string;
-  numberOfStairs: number;
-  url: string;
-  rooms: Room[];
-};
-
-type Room = {
-  roomNo: string;
-  rent: number;
-  floorPlan: FloorPlan;
-  space: number;
-  url: string;
-};
-
-type Station = {
-  name: string;
-  url: string;
-};
-
-type ShamaisonBuildingInfo = {
-  createdAt: string;
-  stations: Station[];
-  data: Building[];
-};
-
-type FloorPlan =
-  | "1R"
-  | "1K"
-  | "1DK"
-  | "1LDK"
-  | "2K"
-  | "2DK"
-  | "2LDK"
-  | "3K"
-  | "3DK"
-  | "3LDK"
-  | "4K"
-  | "4DK"
-  | "4LDK"
-  | "5K"
-  | "5DK"
-  | "5LDK";
+import {
+  Building,
+  Room,
+  Station,
+  ShamaisonBuildingInfo,
+  FloorPlan,
+} from "./types";
 
 const findBuildings = (
   buildings: Building[],
   stations: string[],
-  floorPlans: FloorPlan[]
+  floorPlans: FloorPlan[],
+  minRent: number,
+  maxRent: number,
+  onlyNew: boolean
 ) =>
   buildings
     .map((e) => (stations.indexOf(e.station) !== -1 ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
-    .map((e) => (findRooms(e.rooms, floorPlans).length > 0 ? e : undefined))
+    .map((e) => {
+      const rooms = findRooms(e.rooms, floorPlans, minRent, maxRent, onlyNew);
+      if (rooms.length > 0) {
+        e.rooms = rooms;
+        return e;
+      } else {
+        return undefined;
+      }
+    })
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
 
-const findRooms = (rooms: Room[], floorPlans: FloorPlan[]) =>
+const findRooms = (
+  rooms: Room[],
+  floorPlans: FloorPlan[],
+  minRent: number,
+  maxRent: number,
+  onlyNew: boolean
+) =>
   rooms
+    .map((e) => {
+      return !onlyNew ? e : onlyNew && e.isNew ? e : undefined;
+    })
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
     .map((e) => (floorPlans.indexOf(e.floorPlan) !== -1 ? e : undefined))
+    .filter((e): e is Exclude<typeof e, undefined> => e !== undefined)
+    .map((e) => (e.rent >= minRent && e.rent <= maxRent ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
 
 const createShamaisonMessage = (
@@ -79,46 +62,47 @@ const createShamaisonMessage = (
     "/"
   )}]\n`;
 
-  // e.g: ⭐カルディ公式サイト⭐https://www.shamaison.com/tokyo/route/0000000/station/00000
+  // e.g: ⭐カルディ公式サイト⭐\nhttps://www.shamaison.com/tokyo/route/0000000/station/00000
   const officialLink = `⭐シャーメゾン公式サイト⭐\n${scrapingTargetStations
     .map((e) => `${e.name}: https://www.shamaison.com${e.url}`)
     .join("\n")}`;
 
-  // e.g(n/a): 対象地域の物件情報はありません。
-  // e.g(hit): 【シャーメゾン】JR山手線 新宿駅 徒歩10分 https://www.shamaison.com/tokyo/area/00000/00000000/
-  if (buildings.length === 0) {
-    const noApplicableBuilding = "対象地域の物件情報はありません。\n\n";
-    return `${title}${searchParam}\n${noApplicableBuilding}${officialLink}`;
-  } else {
-    let message = "";
-    let buildingsInfo = "";
-    for (let i = 0; i < buildings.length; i++) {
-      // if your message over 5000 characters, show warn message
-      const warn = `※文字数制限のため${i + 1}/${
-        buildings.length + 1
-      }件を表示しています。\n`;
+  // e.g: 【シャーメゾン】JR山手線 新宿駅 徒歩10分\n101 1LDK 10万円\n202 2LDK 15万円\nhttps://www.shamaison.com/tokyo/area/00000/00000000/
+  let message = "";
+  let buildingsInfo = "";
+  for (let i = 0; i < buildings.length; i++) {
+    // if your message over 5000 characters, show warn message
+    const warn = `※文字数制限のため${i + 1}/${
+      buildings.length
+    }件を表示しています。\n`;
 
-      // if message length isn't over 5000 characters, set building info
-      const nextBuildingsInfo =
-        buildingsInfo +
-        `【${buildings[i].name}】\n${buildings[i].station} ${buildings[i].distance}\n${buildings[i].url}\n\n`;
+    // create room info
+    const nextRoomInfo = buildings[i].rooms
+      .map((e) => {
+        return `${e.roomNo} ${e.floorPlan} ${e.rent}万円`;
+      })
+      .join("\n");
 
-      // if message length isn't over 5000 characters, set next message
-      const nextMessage =
-        i === buildings.length - 1
-          ? `${title}${searchParam}\n${nextBuildingsInfo}${officialLink}`
-          : `${title}${searchParam}\n${nextBuildingsInfo}${warn}\n${officialLink}`;
+    // create building info
+    const nextBuildingsInfo =
+      buildingsInfo +
+      `【${buildings[i].name}】\n${buildings[i].station} ${buildings[i].distance}\n${nextRoomInfo}\n${buildings[i].url}\n\n`;
 
-      // check message length and set confirmed message
-      if (nextMessage.length <= 5000) {
-        buildingsInfo = nextBuildingsInfo;
-        message = nextMessage;
-      } else {
-        break;
-      }
+    // if message length isn't over 5000 characters, set next message
+    const nextMessage =
+      i === buildings.length - 1
+        ? `${title}${searchParam}\n${nextBuildingsInfo}${officialLink}`
+        : `${title}${searchParam}\n${nextBuildingsInfo}${warn}\n${officialLink}`;
+
+    // check message length and set confirmed message
+    if (nextMessage.length <= 5000) {
+      buildingsInfo = nextBuildingsInfo;
+      message = nextMessage;
+    } else {
+      break;
     }
-    return message;
   }
+  return message;
 };
 
 export {

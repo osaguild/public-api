@@ -7,49 +7,15 @@ import {
   successResponse,
 } from "../utils/response";
 import { ValidationError, NotFoundError } from "../utils/error";
-import { GetRequest } from "../utils/request";
+import {
+  Prefecture,
+  Shop,
+  Ranking,
+  ShopRequest,
+  RankingRequest,
+} from "./types";
 
 const TABEROGU_URI = "https://tabelog.com";
-
-type Prefecture = {
-  name: string;
-  code: string;
-  cities: City[];
-};
-
-type City = {
-  name: string;
-  code: string;
-};
-
-type Shop = {
-  id: string;
-  url: string;
-  star: string;
-  unique: boolean;
-};
-
-type Ranking = {
-  id: string;
-  url: string;
-  star: string;
-  ranking: string;
-};
-
-interface ShopRequest extends GetRequest {
-  queryStringParameters: {
-    prefecture: string;
-    city: string;
-    shopName: string;
-  };
-}
-
-interface RankingRequest extends GetRequest {
-  queryStringParameters: {
-    prefecture: string;
-    city: string;
-  };
-}
 
 const searchableAreas: Prefecture[] = [
   {
