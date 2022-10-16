@@ -166,7 +166,6 @@ const getRanking = async (request: RankingRequest) => {
 
     return successResponse(JSON.stringify(ranking));
   } catch (e) {
-    console.log(e);
     return e instanceof ValidationError
       ? badRequestErrorResponse(e.message)
       : e instanceof NotFoundError

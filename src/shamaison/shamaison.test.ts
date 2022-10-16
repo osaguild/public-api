@@ -18,11 +18,14 @@ describe("createShamaisonMessage()", () => {
       new Date(2022, 7, 1),
       stations,
       floorPlans,
+      8,
+      20,
+      true,
       scrapingTargetStations
     );
     const message =
       "🎉2022年8月1日の物件情報🎉\n" +
-      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n" +
+      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK/家賃8-20万円/新着のみ表示]\n\n" +
       "【物件A】\n" +
       "新宿駅 徒歩10分\n" +
       "101 1LDK 12.5万円\n" +
@@ -46,18 +49,21 @@ describe("createShamaisonMessage()", () => {
   });
 
   it("[success]under 5000 character message", async () => {
-    // 230 repeats length is 4994 characters
-    const repeat = 230;
+    // 229 repeats length is 4991 characters
+    const repeat = 229;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
       stations,
       floorPlans,
+      9.5,
+      100,
+      false,
       scrapingTargetStations
     );
     const message =
       "🎉2022年8月1日の物件情報🎉\n" +
-      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n" +
+      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK/家賃9.5-100万円/全件表示]\n\n" +
       "【物件A】\n" +
       "新宿駅 徒歩10分\n" +
       "101 1LDK 10万円\n" +
@@ -86,11 +92,14 @@ describe("createShamaisonMessage()", () => {
       new Date(2022, 7, 1),
       stations,
       floorPlans,
+      0,
+      0,
+      true,
       scrapingTargetStations
     );
     const message =
       "🎉2022年8月1日の物件情報🎉\n" +
-      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK]\n\n" +
+      "[検索条件：新宿駅/池袋駅/浦和駅/1LDK/2LDK/3LDK/家賃0-0万円/新着のみ表示]\n\n" +
       "【物件A】\n" +
       "新宿駅 徒歩10分\n" +
       "101 1LDK 10万円\n" +

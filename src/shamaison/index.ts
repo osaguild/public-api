@@ -50,6 +50,9 @@ const createShamaisonMessage = (
   date: Date,
   stations: string[],
   floorPlans: FloorPlan[],
+  minRent: number,
+  maxRent: number,
+  onlyNew: boolean,
   scrapingTargetStations: Station[]
 ) => {
   // e.g: 🎉2022年01月01日の物件情報🎉
@@ -60,7 +63,7 @@ const createShamaisonMessage = (
   // e.g: [検索条件：新宿駅/池袋駅/1LDK/2LDK/3LDK]
   const searchParam = `[検索条件：${stations.join("/")}/${floorPlans.join(
     "/"
-  )}]\n`;
+  )}/家賃${minRent}-${maxRent}万円/${onlyNew ? "新着のみ表示" : "全件表示"}]\n`;
 
   // e.g: ⭐カルディ公式サイト⭐\nhttps://www.shamaison.com/tokyo/route/0000000/station/00000
   const officialLink = `⭐シャーメゾン公式サイト⭐\n${scrapingTargetStations

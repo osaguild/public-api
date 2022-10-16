@@ -88,6 +88,9 @@ export const hook = async (request: PostRequest) => {
       formatFileNameToDate(file.name),
       globalConfig.SHAMAISON_TARGET_STATIONS,
       globalConfig.SHAMAISON_TARGET_FLOOR_PLANS,
+      globalConfig.SHAMAISON_TARGET_MIN_RENT,
+      globalConfig.SHAMAISON_TARGET_MAX_RENT,
+      globalConfig.SHAMAISON_TARGET_ONLY_NEW,
       shamaisonBuildingInfo.stations
     );
     if (buildings.length !== 0) await sendLineMessage("SHAMAISON", message);
@@ -98,7 +101,6 @@ export const hook = async (request: PostRequest) => {
     await Promise.all([sendKaldiMessage(), sendShamaisonMessage()]);
     return successResponse("success");
   } catch (e) {
-    console.log(e);
     return e instanceof ValidationError
       ? badRequestErrorResponse(e.message)
       : e instanceof ApplicationError
