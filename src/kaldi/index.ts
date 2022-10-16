@@ -1,24 +1,12 @@
 import { formatDateToYYYYMMDD } from "../utils/date";
-
-type Sale = {
-  activeSale: "ACTIVE _SALE" | "SALE_NOTICE";
-  shopName: string;
-  shopAddress: string;
-  saleName: string;
-  saleFrom: string;
-  saleTo: string;
-  saleDetail: string;
-};
-
-type KaldiSaleInfo = {
-  createdAt: string;
-  data: Sale[];
-};
+import { Sale, KaldiSaleInfo } from "./types";
 
 const findSales = (sales: Sale[], prefecture: string) =>
   sales
     .map((e) => (e.shopAddress.includes(prefecture) ? e : undefined))
     .filter((e): e is Exclude<typeof e, undefined> => e !== undefined);
+
+const hasNewSale = (sales: Sale[]) => sales.some((e) => e.isNew);
 
 const createKaldiMessage = (sales: Sale[], date: Date, prefecture: string) => {
   // e.g: 🎉2022年01月01日 東京都のセール情報🎉
@@ -41,4 +29,4 @@ const createKaldiMessage = (sales: Sale[], date: Date, prefecture: string) => {
   return `${title}\n${saleInfo}\n${officialLink}`;
 };
 
-export { Sale, KaldiSaleInfo, findSales, createKaldiMessage };
+export { findSales, createKaldiMessage, hasNewSale, Sale, KaldiSaleInfo };
