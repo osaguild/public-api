@@ -1,36 +1,7 @@
-import { findSales, createKaldiMessage, Sale } from "../kaldi";
+import { findSales, hasNewSale, createKaldiMessage } from "../kaldi";
+import { Sale } from "./types";
 
 jest.setTimeout(10000);
-
-const sales: Sale[] = [
-  {
-    activeSale: "ACTIVE _SALE",
-    shopName: "ショップA",
-    shopAddress: "東京都新宿区xxxxx 1F",
-    saleName: "お客様感謝セール",
-    saleFrom: "2022-08-01T00:00:00+09:00",
-    saleTo: "2022-08-07T00:00:00+09:00",
-    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
-  },
-  {
-    activeSale: "SALE_NOTICE",
-    shopName: "ショップB",
-    shopAddress: "東京都新宿区xxxxx 1F",
-    saleName: "お客様感謝セール",
-    saleFrom: "2022-08-08T00:00:00+09:00",
-    saleTo: "2022-08-14T00:00:00+09:00",
-    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
-  },
-  {
-    activeSale: "ACTIVE _SALE",
-    shopName: "ショップC",
-    shopAddress: "埼玉県さいたま市xxxxx 1F",
-    saleName: "お客様感謝セール",
-    saleFrom: "2022-08-15T00:00:00+09:00",
-    saleTo: "2022-08-22T00:00:00+09:00",
-    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
-  },
-];
 
 describe("findSales()", () => {
   it("[success]not hit", async () => {
@@ -46,6 +17,18 @@ describe("findSales()", () => {
   it("[success]hit multiple sales", async () => {
     const res = await findSales(sales, "東京都");
     expect(res.length).toBe(2);
+  });
+});
+
+describe("hasNewSale()", () => {
+  it("[success]included new sale", async () => {
+    const res = await hasNewSale(sales);
+    expect(res).toBe(true);
+  });
+
+  it("[success]not included sale", async () => {
+    const res = await hasNewSale(notHaveNewSales);
+    expect(res).toBe(false);
   });
 });
 
@@ -73,3 +56,69 @@ describe("createKaldiMessage()", () => {
     expect(res).toBe(message);
   });
 });
+
+const sales: Sale[] = [
+  {
+    activeSale: "ACTIVE _SALE",
+    shopName: "ショップA",
+    shopAddress: "東京都新宿区xxxxx 1F",
+    saleName: "お客様感謝セール",
+    saleFrom: "2022-08-01T00:00:00+09:00",
+    saleTo: "2022-08-07T00:00:00+09:00",
+    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
+    isNew: false,
+  },
+  {
+    activeSale: "SALE_NOTICE",
+    shopName: "ショップB",
+    shopAddress: "東京都新宿区xxxxx 1F",
+    saleName: "お客様感謝セール",
+    saleFrom: "2022-08-08T00:00:00+09:00",
+    saleTo: "2022-08-14T00:00:00+09:00",
+    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
+    isNew: true,
+  },
+  {
+    activeSale: "ACTIVE _SALE",
+    shopName: "ショップC",
+    shopAddress: "埼玉県さいたま市xxxxx 1F",
+    saleName: "お客様感謝セール",
+    saleFrom: "2022-08-15T00:00:00+09:00",
+    saleTo: "2022-08-22T00:00:00+09:00",
+    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
+    isNew: true,
+  },
+];
+
+const notHaveNewSales: Sale[] = [
+  {
+    activeSale: "ACTIVE _SALE",
+    shopName: "ショップA",
+    shopAddress: "東京都新宿区xxxxx 1F",
+    saleName: "お客様感謝セール",
+    saleFrom: "2022-08-01T00:00:00+09:00",
+    saleTo: "2022-08-07T00:00:00+09:00",
+    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
+    isNew: false,
+  },
+  {
+    activeSale: "SALE_NOTICE",
+    shopName: "ショップB",
+    shopAddress: "東京都新宿区xxxxx 1F",
+    saleName: "お客様感謝セール",
+    saleFrom: "2022-08-08T00:00:00+09:00",
+    saleTo: "2022-08-14T00:00:00+09:00",
+    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
+    isNew: false,
+  },
+  {
+    activeSale: "ACTIVE _SALE",
+    shopName: "ショップC",
+    shopAddress: "埼玉県さいたま市xxxxx 1F",
+    saleName: "お客様感謝セール",
+    saleFrom: "2022-08-15T00:00:00+09:00",
+    saleTo: "2022-08-22T00:00:00+09:00",
+    saleDetail: "コーヒー豆半額（一部除外品あり）／商品10%OFF",
+    isNew: false,
+  },
+];

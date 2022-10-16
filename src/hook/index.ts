@@ -7,7 +7,8 @@ import {
 } from "../utils/response";
 import { globalConfig } from "../config";
 import { getLatestFile } from "../github";
-import { KaldiSaleInfo, findSales, createKaldiMessage } from "../kaldi";
+import { findSales, hasNewSale, createKaldiMessage } from "../kaldi";
+import { KaldiSaleInfo } from "../kaldi/types";
 import { formatFileNameToDate } from "../utils/date";
 import { sendLineMessage } from "../line";
 import {
@@ -60,12 +61,14 @@ export const hook = async (request: PostRequest) => {
       kaldiSaleInfo.data,
       globalConfig.KALDI_TARGET_PREFECTURE
     );
-    const message = createKaldiMessage(
-      sales,
-      formatFileNameToDate(file.name),
-      globalConfig.KALDI_TARGET_PREFECTURE
-    );
-    if (sales.length !== 0) await sendLineMessage("KALDI", message);
+    if (sales.length !== 0 && hasNewSale(sales)) {
+      const message = createKaldiMessage(
+        sales,
+        formatFileNameToDate(file.name),
+        globalConfig.KALDI_TARGET_PREFECTURE
+      );
+      await sendLineMessage("KALDI", message);
+    }
   };
 
   // send shamaison message
