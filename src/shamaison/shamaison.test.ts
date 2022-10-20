@@ -20,8 +20,7 @@ describe("createShamaisonMessage()", () => {
       floorPlans,
       8,
       20,
-      true,
-      scrapingTargetStations
+      true
     );
     const message =
       "🎉2022年8月1日の物件情報🎉\n" +
@@ -40,17 +39,13 @@ describe("createShamaisonMessage()", () => {
       "浦和駅 徒歩20分\n" +
       "101 1LDK 9.5万円\n" +
       "303 2LDK 12.4万円\n" +
-      "https://www.shamaison.com/test/c/\n\n" +
-      "⭐シャーメゾン公式サイト⭐\n" +
-      "新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n" +
-      "池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n" +
-      "浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
+      "https://www.shamaison.com/test/c/\n\n";
     expect(res).toBe(message);
   });
 
-  it("[success]under 5000 character message", async () => {
-    // 229 repeats length is 4991 characters
-    const repeat = 229;
+  it("[success]under 4950 character message", async () => {
+    // 235 repeats length is 4933 characters
+    const repeat = 235;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
@@ -58,8 +53,7 @@ describe("createShamaisonMessage()", () => {
       floorPlans,
       9.5,
       100,
-      false,
-      scrapingTargetStations
+      false
     );
     const message =
       "🎉2022年8月1日の物件情報🎉\n" +
@@ -76,17 +70,14 @@ describe("createShamaisonMessage()", () => {
       "【物件C】\n" +
       "浦和駅 徒歩20分\n" +
       "101 1LDK 10万円\n" +
-      "https://www.shamaison.com/test/c/\n\n" +
-      "⭐シャーメゾン公式サイト⭐\n" +
-      "新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n" +
-      "池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n" +
-      "浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
+      "https://www.shamaison.com/test/c/\n\n";
+    console.log("message", message.length);
     expect(res).toBe(message);
   });
 
-  it("[success]over 5000 character message", async () => {
-    // 231 repeats length is 4985 characters and building 3 isn't shown
-    const repeat = 231;
+  it("[success]over 4950 character message", async () => {
+    // 236 repeats length is 4953 characters and building 3 isn't shown
+    const repeat = 236;
     const res = await createShamaisonMessage(
       controllableBuildings(repeat),
       new Date(2022, 7, 1),
@@ -94,8 +85,7 @@ describe("createShamaisonMessage()", () => {
       floorPlans,
       0,
       0,
-      true,
-      scrapingTargetStations
+      true
     );
     const message =
       "🎉2022年8月1日の物件情報🎉\n" +
@@ -108,11 +98,8 @@ describe("createShamaisonMessage()", () => {
       "池袋駅 徒歩15分\n" +
       "101 1LDK 10万円\n" +
       "20 length characters".repeat(repeat) +
-      "\n\n※文字数制限のため2/3件を表示しています。\n\n" +
-      "⭐シャーメゾン公式サイト⭐\n" +
-      "新宿駅: https://www.shamaison.com/tokyo/route/1/station/1\n" +
-      "池袋駅: https://www.shamaison.com/tokyo/route/1/station/2\n" +
-      "浦和駅: https://www.shamaison.com/tokyo/route/2/station/3";
+      "\n\n※文字数制限のため2/3件を表示しています。";
+    console.log("message", message.length);
     expect(res).toBe(message);
   });
 });

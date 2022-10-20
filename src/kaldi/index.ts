@@ -23,10 +23,7 @@ const createKaldiMessage = (sales: Sale[], date: Date, prefecture: string) => {
     })
     .join("\n");
 
-  // e.g: ⭐カルディ公式サイト⭐https://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35
-  const officialLink = `⭐カルディ公式サイト⭐\nhttps://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw001=2010-03-12T13%3A10%3A35`;
-
-  return `${title}\n${saleInfo}\n${officialLink}`;
+  return `${title}\n${saleInfo}`;
 };
 
 export { findSales, createKaldiMessage, hasNewSale, Sale, KaldiSaleInfo };

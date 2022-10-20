@@ -90,8 +90,7 @@ export const hook = async (request: PostRequest) => {
       globalConfig.SHAMAISON_TARGET_FLOOR_PLANS,
       globalConfig.SHAMAISON_TARGET_MIN_RENT,
       globalConfig.SHAMAISON_TARGET_MAX_RENT,
-      globalConfig.SHAMAISON_TARGET_ONLY_NEW,
-      shamaisonBuildingInfo.stations
+      globalConfig.SHAMAISON_TARGET_ONLY_NEW
     );
     if (buildings.length !== 0) await sendLineMessage("SHAMAISON", message);
   };

@@ -52,8 +52,7 @@ const createShamaisonMessage = (
   floorPlans: FloorPlan[],
   minRent: number,
   maxRent: number,
-  onlyNew: boolean,
-  scrapingTargetStations: Station[]
+  onlyNew: boolean
 ) => {
   // e.g: 🎉2022年01月01日の物件情報🎉
   const title = `🎉${date.getFullYear()}年${
@@ -65,19 +64,14 @@ const createShamaisonMessage = (
     "/"
   )}/家賃${minRent}-${maxRent}万円/${onlyNew ? "新着のみ表示" : "全件表示"}]\n`;
 
-  // e.g: ⭐カルディ公式サイト⭐\nhttps://www.shamaison.com/tokyo/route/0000000/station/00000
-  const officialLink = `⭐シャーメゾン公式サイト⭐\n${scrapingTargetStations
-    .map((e) => `${e.name}: https://www.shamaison.com${e.url}`)
-    .join("\n")}`;
-
   // e.g: 【シャーメゾン】JR山手線 新宿駅 徒歩10分\n101 1LDK 10万円\n202 2LDK 15万円\nhttps://www.shamaison.com/tokyo/area/00000/00000000/
   let message = "";
   let buildingsInfo = "";
   for (let i = 0; i < buildings.length; i++) {
-    // if your message over 5000 characters, show warn message
+    // if your message over 4950 characters, show warn message
     const warn = `※文字数制限のため${i + 1}/${
       buildings.length
-    }件を表示しています。\n`;
+    }件を表示しています。`;
 
     // create room info
     const nextRoomInfo = buildings[i].rooms
@@ -91,14 +85,14 @@ const createShamaisonMessage = (
       buildingsInfo +
       `【${buildings[i].name}】\n${buildings[i].station} ${buildings[i].distance}\n${nextRoomInfo}\n${buildings[i].url}\n\n`;
 
-    // if message length isn't over 5000 characters, set next message
+    // if message length isn't over 4950 characters, set next message
     const nextMessage =
       i === buildings.length - 1
-        ? `${title}${searchParam}\n${nextBuildingsInfo}${officialLink}`
-        : `${title}${searchParam}\n${nextBuildingsInfo}${warn}\n${officialLink}`;
+        ? `${title}${searchParam}\n${nextBuildingsInfo}`
+        : `${title}${searchParam}\n${nextBuildingsInfo}${warn}`;
 
     // check message length and set confirmed message
-    if (nextMessage.length <= 5000) {
+    if (nextMessage.length <= 4950) {
       buildingsInfo = nextBuildingsInfo;
       message = nextMessage;
     } else {
