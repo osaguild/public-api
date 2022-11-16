@@ -79,7 +79,8 @@ export class Common extends Construct {
 
     // amazon
     const apiV1Amazon = apiV1.addResource("amazon");
-    apiV1Amazon.addMethod(
+    const apiV1AmazonWishList = apiV1Amazon.addResource("wish-list");
+    apiV1AmazonWishList.addMethod(
       "GET",
       new apiGateway.LambdaIntegration(props.amazon.getWishList)
     );
