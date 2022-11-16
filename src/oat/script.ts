@@ -58,5 +58,19 @@ import axios from "axios";
   } else {
     throw new Error("/v1/hook is invalid");
   }
+
+  // test for /v1/amazon/wish-list
+  console.log("start... /v1/amazon/wish-list");
+  const res4 = await axios.get(`${uri}/v1/amazon/wish-list`, {
+    params: {
+      userId: "3T1F97J6M6OO6",
+    },
+  });
+  if (res4.status === 200) {
+    console.log("success!!");
+  } else {
+    throw new Error("/v1/amazon/wish-list is invalid");
+  }
+
   console.log(`[complete OAT... on ${env}]`);
 })();
