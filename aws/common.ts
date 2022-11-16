@@ -11,6 +11,9 @@ export interface CommonProps {
     getRanking: cdk.aws_lambda.Function;
   };
   hook: cdk.aws_lambda.Function;
+  amazon: {
+    getWishList: cdk.aws_lambda.Function;
+  };
 }
 
 export class Common extends Construct {
@@ -73,5 +76,12 @@ export class Common extends Construct {
     // hook
     const apiV1Hook = apiV1.addResource("hook");
     apiV1Hook.addMethod("POST", new apiGateway.LambdaIntegration(props.hook));
+
+    // amazon
+    const apiV1Amazon = apiV1.addResource("amazon");
+    apiV1Amazon.addMethod(
+      "GET",
+      new apiGateway.LambdaIntegration(props.amazon.getWishList)
+    );
   }
 }
