@@ -63,7 +63,7 @@ import axios from "axios";
   console.log("start... /v1/amazon/wish-list");
   const res4 = await axios.get(`${uri}/v1/amazon/wish-list`, {
     params: {
-      userId: "3T1F97J6M6OO6",
+      id: "Y0W746THVC7X",
     },
   });
   if (res4.status === 200) {
