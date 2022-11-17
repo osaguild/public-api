@@ -13,7 +13,7 @@ export class Amazon extends Construct {
     const target = scope.node.tryGetContext("target");
 
     this.getWishList = new lambda.Function(this, "amazon-get-wish-list", {
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
       handler: "./amazon/index.getWishList",
       memorySize: 128,

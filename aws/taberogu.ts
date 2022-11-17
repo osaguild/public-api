@@ -14,7 +14,7 @@ export class Taberogu extends Construct {
     const target = scope.node.tryGetContext("target");
 
     this.getShop = new lambda.Function(this, "taberogu-get-shop", {
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
       handler: "./taberogu/index.getShop",
       memorySize: 128,
@@ -27,7 +27,7 @@ export class Taberogu extends Construct {
     });
 
     this.getRanking = new lambda.Function(this, "taberogu-get-ranking", {
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
       handler: "./taberogu/index.getRanking",
       memorySize: 256,

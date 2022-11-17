@@ -14,7 +14,7 @@ export class Hook extends Construct {
     const target = scope.node.tryGetContext("target");
 
     this.hook = new lambda.Function(this, "hook", {
-      runtime: lambda.Runtime.NODEJS_14_X,
+      runtime: lambda.Runtime.NODEJS_16_X,
       code: lambda.Code.fromAsset(path.join(__dirname, "../src/")),
       handler: "./hook/index.hook",
       memorySize: 128,
