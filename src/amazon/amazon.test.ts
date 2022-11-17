@@ -6,17 +6,17 @@ describe("getWishList()", () => {
   it("[success]", async () => {
     const req = {
       queryStringParameters: {
-        userId: "3T1F97J6M6OO6",
+        id: "Y0W746THVC7X",
       },
     };
     const res = await getWishList(req);
     const resBody: WishList[] = JSON.parse(res.body);
     expect(res.statusCode).toBe(200);
     expect(res.headers["Access-Control-Allow-Origin"]).toBe("*");
-    expect(resBody[0].id).toBe("I3MBZSASBK30CP");
-    expect(resBody[0].title).toBe(
-      "ラディカル・マーケット 脱・私有財産の世紀: 公正な社会への資本主義と民主主義改革"
+    expect(resBody[0].itemId).toBe("I28DKRDNB8EA12");
+    expect(resBody[0].itemName).toBe(
+      "PAW WING パウ・ウイング 犬 用 パッド くつ ペット 靴下 滑り止め 肉球 保護 傷防止 すべり 止め フット パッド (【L】×1セット, ブラック)"
     );
-    expect(resBody[0].price).toBe("3,520");
+    expect(resBody[0].itemPrice).toBe("2,240");
   });
 });

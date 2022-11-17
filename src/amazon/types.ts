@@ -1,14 +1,14 @@
 import { GetRequest } from "../utils/request";
 
 type WishList = {
-  id: string;
-  title: string;
-  price: string;
+  itemId: string;
+  itemName: string;
+  itemPrice: string;
 };
 
 interface WishListRequest extends GetRequest {
   queryStringParameters: {
-    userId: string;
+    id: string;
   };
 }
 
